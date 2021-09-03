@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+
+  frontend:
+    build: ./frontend
+    image: nigredo
+    restart: unless-stopped
+
+    ports:
+      - "8001:8001"
+
+    depends_on: 
+      - backend
+      
+  admin:
+    build: ./admin
+    image: citrinitas
+    restart: unless-stopped
+
+    ports:
+      - "8002:8002"
+
+    depends_on: 
+      - backend
+  
+  backend:
+    build: ./backend
+    image: albedo
+    restart: unless-stopped
+
+    volumes: 
+      - ${PWD}/storage:/storage
+
+    ports:
+      - "5000:5000"
+    
+    env_file: 
+      - postgres.env
+
+    depends_on: 
+      - database
+
+  database:
+    image: postgres:13-alpine
+    restart: unless-stopped
+
+    env_file: 
+      - postgres.env
