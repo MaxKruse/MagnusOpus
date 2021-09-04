@@ -11,7 +11,7 @@ services:
       - "8001:8001"
 
     depends_on: 
-      - backend
+      - database
       
   admin:
     build: ./admin
@@ -22,7 +22,7 @@ services:
       - "8002:8002"
 
     depends_on: 
-      - backend
+      - database
   
   backend:
     build: ./backend
@@ -30,7 +30,9 @@ services:
     restart: unless-stopped
 
     volumes: 
-      - ${PWD}/storage:/storage
+      - ./backend:/app
+      - ./backend/storage:/storage
+    command: air
 
     ports:
       - "5000:5000"
