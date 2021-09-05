@@ -1,6 +1,0 @@
-mydomain.com {
-    reverse_proxy / 127.0.0.1:8001
-    reverse_proxy /admin 127.0.0.1:8002
-
-    reverse_proxy /api/v1 127.0.0.1:5000
-}
