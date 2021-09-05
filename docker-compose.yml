@@ -39,6 +39,7 @@ services:
     
     env_file: 
       - postgres.env
+      - backend/backend.env
 
     depends_on: 
       - database

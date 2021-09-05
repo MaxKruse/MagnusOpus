@@ -8,6 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/maxkruse/magnusopus/backend/globals"
 	"github.com/maxkruse/magnusopus/backend/routes"
+	"github.com/maxkruse/magnusopus/backend/structs"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -41,8 +42,12 @@ func init() {
 	if err != nil {
 		globals.Logger.Fatal(err)
 	}
-
 	globals.Logger.Debug("Connected to database")
+
+	// Migrate Tables
+	globals.DBConn.AutoMigrate(&structs.User{})
+	globals.DBConn.AutoMigrate(&structs.Session{})
+	globals.Logger.Debug("Migrated")
 
 	globals.Logger.Debug("Starting Magnusopus backend")
 	globals.Logger.WithFields(logrus.Fields{"config": globals.Config}).Debug("Config")
@@ -54,6 +59,7 @@ func main() {
 	})
 
 	app.Post("/upload", routes.Upload)
+	app.Get("/oauth", routes.GetOauth)
 
 	app.Listen(":5000")
 }
