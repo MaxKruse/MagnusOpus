@@ -4,6 +4,7 @@ import (
 	// Import logrus
 
 	"os"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/maxkruse/magnusopus/backend/globals"
@@ -41,6 +42,7 @@ func init() {
 	globals.DBConn, err = gorm.Open(postgres.Open(globals.Config.POSTGRES_URL), &gorm.Config{})
 	if err != nil {
 		globals.Logger.Fatal(err)
+		os.Exit(1)
 	}
 	globals.Logger.Debug("Connected to database")
 
@@ -53,13 +55,45 @@ func init() {
 	globals.Logger.WithFields(logrus.Fields{"config": globals.Config}).Debug("Config")
 }
 
+func checkSessionCookie(c *fiber.Ctx) error {
+	// Check if session cookie is set
+	accessToken := c.Cookies("ripple_token")
+	if accessToken == "" {
+		// Redirect to login
+		return c.Redirect("/oauth")
+	}
+
+	// check if auth_token is in database
+	user := structs.User{}
+	user.Session = structs.Session{AccessToken: accessToken}
+
+	globals.DBConn.Preload("Session").First(&user, user)
+	if user.Session.ID == 0 {
+		// Redirect to login
+		return c.Redirect("/oauth")
+	}
+
+	globals.Logger.WithFields(logrus.Fields{"user": user}).Debug("user")
+	c.Cookie(&fiber.Cookie{
+		Name:  "user_id",
+		Value: strconv.Itoa(user.RippleId),
+	})
+	return nil
+}
+
 func main() {
 	app := fiber.New(fiber.Config{
 		Prefork: false, // true = multithreaded, false = singlethreaded
 	})
 
-	app.Post("/upload", routes.Upload)
+	app.Static("/", "/frontend")
+	app.Static("/admin", "/admin")
+
+	app.Post("/api/v1/upload", routes.Upload)
 	app.Get("/oauth", routes.GetOauth)
+
+	// use auth middleware
+	app.Use(checkSessionCookie)
 
 	app.Listen(":5000")
 }

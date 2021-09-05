@@ -34,6 +34,8 @@ It will also provide for any needed backend components to allow users to upload 
 
 The database will be multi-client compliant, meaning users will only ever see what they are supposed to see. The same goes for judges. Only staff gets clear views.
 
+Also noteworthy, the backend serves all files.
+
 ## Citrinitas
 
 The admin panel will have a seperate view and requires a [ripple](https://ripple.moe) login.
@@ -46,9 +48,13 @@ This admin panel is purely for creating tournaments, changing the active rounds 
 
 The following ports will be exposed by docker-compose:
 
-    8001: The frontend
-    8002: The adminpanel
     5000: The backend
+
+The follow paths will be exposed:
+
+    / (Root): frontend
+    /admin  : admin
+    /api/v1 : backend api
 
 The port for the database will not be exposed.
 

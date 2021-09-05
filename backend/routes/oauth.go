@@ -154,8 +154,13 @@ func GetOauth(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success": true,
-		"data":    user,
+	c.Cookie(&fiber.Cookie{
+		Name:  "ripple_token",
+		Value: user.Session.AccessToken,
 	})
+
+	// Clean up after ourselfs
+	c.ClearCookie("oauth_state")
+
+	return c.Status(fiber.StatusOK).Redirect("/")
 }

@@ -7,6 +7,9 @@ services:
     image: nigredo
     restart: unless-stopped
 
+    volumes:
+      - frontend-volume:/app/dist
+
     ports:
       - "8001:8001"
 
@@ -17,6 +20,9 @@ services:
     build: ./admin
     image: citrinitas
     restart: unless-stopped
+
+    volumes:
+      - frontend-volume:/app/dist
 
     ports:
       - "8002:8002"
@@ -32,6 +38,8 @@ services:
     volumes: 
       - ./backend:/app
       - ./backend/storage:/storage
+      - frontend-volume:/frontend
+      - admin-volume:/admin
     command: air
 
     ports:
@@ -50,3 +58,7 @@ services:
 
     env_file: 
       - postgres.env
+
+volumes: 
+  frontend-volume:
+  admin-volume:
