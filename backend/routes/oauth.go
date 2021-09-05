@@ -12,7 +12,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/maxkruse/magnusopus/backend/globals"
 	"github.com/maxkruse/magnusopus/backend/structs"
-	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 )
 
@@ -38,8 +37,6 @@ func GetOauth(c *fiber.Ctx) error {
 		Scopes:      []string{""},
 	}
 
-	globals.Logger.WithFields(logrus.Fields{"config": oauthConfig}).Info("OAuth config")
-
 	// Get the code
 	code := c.Query("code")
 
@@ -56,9 +53,6 @@ func GetOauth(c *fiber.Ctx) error {
 			Value: state,
 		}
 		c.Cookie(cookie)
-
-		globals.Logger.WithFields(logrus.Fields{"state": state}).Info("Generated state")
-		globals.Logger.WithField("url", oauthConfig.AuthCodeURL(state)).Info("Redirecting to oauth")
 		return c.Redirect(oauthConfig.AuthCodeURL(state))
 	}
 
@@ -70,9 +64,6 @@ func GetOauth(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).SendString("invalid oauth state")
 		// return c.Redirect("/")
 	}
-
-	// Get the token
-	globals.Logger.Info("Trying to Exchange for Token")
 
 	token, err := oauthConfig.Exchange(context.Background(), code)
 	if err != nil {
@@ -99,44 +90,25 @@ func GetOauth(c *fiber.Ctx) error {
 	rippleResp := structs.RipplePing{}
 	json.NewDecoder(resp.Body).Decode(&rippleResp)
 
-	globals.Logger.WithFields(logrus.Fields{
-		"resp": rippleResp,
-	}).Info("Got user info")
-
 	user := structs.User{}
 	user.RippleId = rippleResp.UserId
 
 	// check if user with this RippleId exists
 	globals.DBConn.Preload("Session").First(&user, user)
 
-	// debug log user
-	globals.Logger.WithFields(logrus.Fields{
-		"user": user,
-	}).Debug("User")
-
 	// check if user had a session
 	if user.Session.ID != 0 {
 		// update the session
 		user.Session.AccessToken = token.AccessToken
-
-		globals.Logger.WithFields(logrus.Fields{
-			"session": user.Session,
-		}).Debug("Session")
-
 		err = globals.DBConn.Save(&user.Session).Error
+
 	} else {
 		user.Session = structs.Session{
 			AccessToken: token.AccessToken,
 		}
-		globals.Logger.WithFields(logrus.Fields{
-			"session": user.Session,
-		}).Debug("Session")
 		err = globals.DBConn.Save(&user).Error
-	}
 
-	globals.Logger.WithFields(logrus.Fields{
-		"user": user,
-	}).Debug("User")
+	}
 
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{

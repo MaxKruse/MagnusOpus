@@ -51,7 +51,7 @@ func init() {
 	globals.DBConn.AutoMigrate(&structs.Session{})
 	globals.Logger.Debug("Migrated")
 
-	globals.Logger.Debug("Starting Magnusopus backend")
+	globals.Logger.Info("Starting Magnusopus backend")
 	globals.Logger.WithFields(logrus.Fields{"config": globals.Config}).Debug("Config")
 }
 
@@ -73,7 +73,6 @@ func checkSessionCookie(c *fiber.Ctx) error {
 		return c.Redirect("/oauth")
 	}
 
-	globals.Logger.WithFields(logrus.Fields{"user": user}).Debug("user")
 	c.Cookie(&fiber.Cookie{
 		Name:  "user_id",
 		Value: strconv.Itoa(user.RippleId),
