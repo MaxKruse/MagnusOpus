@@ -12,8 +12,9 @@ type Config struct {
 // User struct
 type Session struct {
 	gorm.Model
-	UserID      uint
-	AccessToken string `gorm:"type:varchar(64);"`
+	UserID       uint
+	SessionToken string
+	AccessToken  string `gorm:"type:varchar(64);"`
 }
 
 type User struct {

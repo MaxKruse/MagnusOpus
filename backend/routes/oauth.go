@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/maxkruse/magnusopus/backend/globals"
@@ -99,16 +100,19 @@ func GetOauth(c *fiber.Ctx) error {
 
 	// check if user with this RippleId exists
 	globals.DBConn.Preload("Session").First(&user, user)
+	sessionToken, err := state(32)
 
 	// check if user had a session
 	if user.Session.ID != 0 {
 		// update the session
+		user.Session.SessionToken = sessionToken
 		user.Session.AccessToken = token.AccessToken
 		err = globals.DBConn.Save(&user.Session).Error
 
 	} else {
 		user.Session = structs.Session{
-			AccessToken: token.AccessToken,
+			AccessToken:  token.AccessToken,
+			SessionToken: sessionToken,
 		}
 		err = globals.DBConn.Save(&user).Error
 
@@ -131,8 +135,13 @@ func GetOauth(c *fiber.Ctx) error {
 	}
 
 	c.Cookie(&fiber.Cookie{
-		Name:  "ripple_token",
-		Value: user.Session.AccessToken,
+		Name:  "session_token",
+		Value: user.Session.SessionToken,
+	})
+
+	c.Cookie(&fiber.Cookie{
+		Name:  "user_id",
+		Value: strconv.Itoa(user.RippleId),
 	})
 
 	// Clean up after ourselfs

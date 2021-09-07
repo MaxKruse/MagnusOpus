@@ -7,6 +7,8 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cache"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/maxkruse/magnusopus/backend/globals"
 	"github.com/maxkruse/magnusopus/backend/routes"
 	"github.com/maxkruse/magnusopus/backend/structs"
@@ -62,15 +64,18 @@ func checkSessionCookie(c *fiber.Ctx) error {
 	}
 
 	// Check if session cookie is set
-	accessToken := c.Cookies("ripple_token")
-	if accessToken == "" {
+	session_token := c.Cookies("session_token")
+	if session_token == "" {
 		// Redirect to login
 		return c.Redirect("/oauth")
 	}
 
 	// check if auth_token is in database
 	user := structs.User{}
-	user.Session = structs.Session{AccessToken: accessToken}
+	user.Session = structs.Session{SessionToken: session_token}
+	rippleId := c.Cookies("user_id")
+	// convert rippleId to string
+	user.RippleId, _ = strconv.Atoi(rippleId)
 
 	globals.DBConn.Preload("Session").First(&user, user)
 	if user.Session.ID == 0 {
@@ -78,10 +83,8 @@ func checkSessionCookie(c *fiber.Ctx) error {
 		return c.Redirect("/oauth")
 	}
 
-	c.Cookie(&fiber.Cookie{
-		Name:  "user_id",
-		Value: strconv.Itoa(user.RippleId),
-	})
+	globals.Logger.WithFields(logrus.Fields{"user": user}).Debug("User")
+
 	return nil
 }
 
@@ -90,7 +93,9 @@ func main() {
 		Prefork: false, // true = multithreaded, false = singlethreaded
 	})
 
-	// use auth middleware
+	// use middlewares
+	app.Use(logger.New())
+	app.Use(cache.New())
 	app.Use(checkSessionCookie)
 
 	app.Post("/api/v1/upload", routes.Upload)
