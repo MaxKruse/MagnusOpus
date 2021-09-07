@@ -12,6 +12,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/maxkruse/magnusopus/backend/globals"
 	"github.com/maxkruse/magnusopus/backend/structs"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 )
 
@@ -39,6 +40,9 @@ func GetOauth(c *fiber.Ctx) error {
 
 	// Get the code
 	code := c.Query("code")
+	globals.Logger.WithFields(logrus.Fields{
+		"code": code,
+	}).Debug("Received code")
 
 	if code == "" {
 		// Redirect to the oauth page

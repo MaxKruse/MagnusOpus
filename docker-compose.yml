@@ -7,11 +7,8 @@ services:
     image: nigredo
     restart: unless-stopped
 
-    volumes:
-      - frontend-volume:/app/dist
-
-    ports:
-      - "8001:8001"
+    volumes: 
+      - ./frontend:/app
 
     depends_on: 
       - database
@@ -21,11 +18,8 @@ services:
     image: citrinitas
     restart: unless-stopped
 
-    volumes:
-      - frontend-volume:/app/dist
-
-    ports:
-      - "8002:8002"
+    volumes: 
+      - ./admin:/app
 
     depends_on: 
       - database
@@ -38,12 +32,8 @@ services:
     volumes: 
       - ./backend:/app
       - ./backend/storage:/storage
-      - frontend-volume:/frontend
-      - admin-volume:/admin
+    
     command: air
-
-    ports:
-      - "5000:5000"
     
     env_file: 
       - postgres.env
@@ -59,6 +49,13 @@ services:
     env_file: 
       - postgres.env
 
-volumes: 
-  frontend-volume:
-  admin-volume:
+  caddy:
+    image: caddy:alpine
+    restart: unless-stopped
+
+    volumes:
+      - ./caddy:/etc/caddy
+
+    ports:
+      - "80:80"
+      - "443:443"

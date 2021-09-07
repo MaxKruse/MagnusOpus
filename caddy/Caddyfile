@@ -1,0 +1,6 @@
+localhost {
+	reverse_proxy /api/v1/* http://backend:5000
+	reverse_proxy /admin/* http://admin:8080
+	reverse_proxy /oauth http://backend:5000
+	reverse_proxy http://frontend:8080
+}

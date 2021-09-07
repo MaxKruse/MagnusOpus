@@ -56,6 +56,11 @@ func init() {
 }
 
 func checkSessionCookie(c *fiber.Ctx) error {
+	// dont checck for /oauth
+	if c.Path() == "/oauth" {
+		return c.Next()
+	}
+
 	// Check if session cookie is set
 	accessToken := c.Cookies("ripple_token")
 	if accessToken == "" {
@@ -85,14 +90,11 @@ func main() {
 		Prefork: false, // true = multithreaded, false = singlethreaded
 	})
 
-	app.Static("/", "/frontend")
-	app.Static("/admin", "/admin")
+	// use auth middleware
+	app.Use(checkSessionCookie)
 
 	app.Post("/api/v1/upload", routes.Upload)
 	app.Get("/oauth", routes.GetOauth)
-
-	// use auth middleware
-	app.Use(checkSessionCookie)
 
 	app.Listen(":5000")
 }
