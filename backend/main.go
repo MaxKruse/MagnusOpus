@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/maxkruse/magnusopus/backend/globals"
 	"github.com/maxkruse/magnusopus/backend/routes"
@@ -85,7 +84,7 @@ func checkSessionCookie(c *fiber.Ctx) error {
 
 	globals.Logger.WithFields(logrus.Fields{"user": user}).Debug("User")
 
-	return nil
+	return c.Next()
 }
 
 func main() {
@@ -95,7 +94,6 @@ func main() {
 
 	// use middlewares
 	app.Use(logger.New())
-	app.Use(cache.New())
 	app.Use(checkSessionCookie)
 
 	app.Post("/api/v1/upload", routes.Upload)

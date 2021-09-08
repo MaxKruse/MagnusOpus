@@ -22,6 +22,7 @@ func Upload(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{
 			"success": false,
 			"message": err.Error(),
+			"file":    file,
 		})
 	}
 
