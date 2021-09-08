@@ -41,7 +41,7 @@ func CheckAuth(c *fiber.Ctx) error {
 	}
 
 	// get token
-	token := auth[8:]
+	token := auth[7:]
 	Logger.WithFields(logrus.Fields{
 		"token": token,
 	}).Debug("Checking token")
