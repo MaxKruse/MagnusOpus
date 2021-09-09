@@ -6,7 +6,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"io"
-	"log"
 	"os"
 	"strconv"
 
@@ -17,11 +16,36 @@ import (
 	"golang.org/x/oauth2"
 )
 
-func state(n int) (string, error) {
-	data := make([]byte, n)
-	if _, err := io.ReadFull(rand.Reader, data); err != nil {
+func assertAvailablePRNG() {
+	// Assert that a cryptographically secure PRNG is available.
+	// Panic otherwise.
+	buf := make([]byte, 1)
+
+	_, err := io.ReadFull(rand.Reader, buf)
+	if err != nil {
+		globals.Logger.Fatalf("crypto/rand is unavailable: Read() failed with %#v", err)
+	}
+}
+
+func generateRandomString(n int) ([]byte, error) {
+	assertAvailablePRNG()
+
+	b := make([]byte, n)
+	_, err := rand.Read(b)
+	// Note that err == nil only if we read len(b) bytes.
+	if err != nil {
+		return nil, err
+	}
+
+	return b, nil
+}
+
+func genSessionToken(n int) (string, error) {
+	data, err := generateRandomString(n)
+	if err != nil {
 		return "", err
 	}
+
 	return base64.StdEncoding.EncodeToString(data), nil
 }
 
@@ -41,13 +65,10 @@ func GetOauth(c *fiber.Ctx) error {
 
 	// Get the code
 	code := c.Query("code")
-	globals.Logger.WithFields(logrus.Fields{
-		"code": code,
-	}).Debug("Received code")
 
 	if code == "" {
 		// Redirect to the oauth page
-		state, err := state(32)
+		state, err := genSessionToken(32)
 		if err != nil {
 			return err
 		}
@@ -61,12 +82,24 @@ func GetOauth(c *fiber.Ctx) error {
 		return c.Redirect(oauthConfig.AuthCodeURL(state))
 	}
 
+	globals.Logger.WithFields(logrus.Fields{
+		"code": code,
+	}).Debug("Received code")
+
 	// Read oauthState from Cookie
 	oauth_state := c.Cookies("oauth_state")
 
 	if c.Query("state") != oauth_state {
-		log.Println("invalid oauth state")
-		return c.Status(fiber.StatusUnauthorized).SendString("invalid oauth state")
+		globals.Logger.WithFields(logrus.Fields{
+			"state":       c.Query("state"),
+			"oauth_state": oauth_state,
+			"connection":  c.IP(),
+		}).Error("State mismatch")
+
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"success": false,
+			"message": "invalid oauth state",
+		})
 		// return c.Redirect("/")
 	}
 
@@ -100,7 +133,14 @@ func GetOauth(c *fiber.Ctx) error {
 
 	// check if user with this RippleId exists
 	globals.DBConn.Preload("Session").First(&user, user)
-	sessionToken, err := state(32)
+	sessionToken, err := genSessionToken(32)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"success": false,
+			"message": "Could not generate session token",
+			"error":   err.Error(),
+		})
+	}
 
 	// check if user had a session
 	if user.Session.ID != 0 {

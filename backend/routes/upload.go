@@ -11,7 +11,7 @@ import (
 func Upload(c *fiber.Ctx) error {
 	// check if authenticated
 	if err := globals.CheckAuth(c); err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"success": false,
 			"message": err.Error(),
 		})

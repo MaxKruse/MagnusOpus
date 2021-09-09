@@ -65,8 +65,10 @@ func checkSessionCookie(c *fiber.Ctx) error {
 	// Check if session cookie is set
 	session_token := c.Cookies("session_token")
 	if session_token == "" {
-		// Redirect to login
-		return c.Redirect("/oauth")
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"success": false,
+			"message": "no session_token, please login",
+		})
 	}
 
 	// check if auth_token is in database
@@ -78,8 +80,12 @@ func checkSessionCookie(c *fiber.Ctx) error {
 
 	globals.DBConn.Preload("Session").First(&user, user)
 	if user.Session.ID == 0 {
-		// Redirect to login
-		return c.Redirect("/oauth")
+
+		// no valid session found with given credentials, return error
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"success": false,
+			"message": "no session found, please login",
+		})
 	}
 
 	globals.Logger.WithFields(logrus.Fields{"user": user}).Debug("User")
