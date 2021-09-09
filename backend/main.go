@@ -7,7 +7,10 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/compress"
+	"github.com/gofiber/fiber/v2/middleware/etag"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/maxkruse/magnusopus/backend/globals"
 	"github.com/maxkruse/magnusopus/backend/routes"
 	"github.com/maxkruse/magnusopus/backend/structs"
@@ -100,6 +103,11 @@ func main() {
 
 	// use middlewares
 	app.Use(logger.New())
+	app.Use(etag.New())
+	app.Use(compress.New())
+	app.Use(recover.New())
+
+	// use custom middleware
 	app.Use(checkSessionCookie)
 
 	app.Post("/api/v1/upload", routes.Upload)
