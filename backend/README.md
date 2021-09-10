@@ -2,7 +2,8 @@
 
 - [x] Support for multiple servers
 - [x] Support for signup using bancho
-- [x] Support for signup using  ripple
+- [x] Support for signup using ripple
+- [X] Associate accounts across servers
 - [ ] Logout user per server
 - [ ] Save user data per server
 - [ ] Save beatmap 

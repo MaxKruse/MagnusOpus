@@ -102,7 +102,7 @@ func GetOAuthRipple(c *fiber.Ctx) error {
 
 	// Get the user info
 	client := oauthConfig.Client(context.Background(), token)
-	resp, err := client.Get("https://ripple.moe/api/v1/ping")
+	resp, err := client.Get("https://ripple.moe/api/v1/users/self")
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success": false,
@@ -113,7 +113,7 @@ func GetOAuthRipple(c *fiber.Ctx) error {
 
 	defer resp.Body.Close()
 
-	rippleResp := structs.RipplePing{}
+	rippleResp := structs.RippleSelf{}
 	json.NewDecoder(resp.Body).Decode(&rippleResp)
 
 	globals.Logger.WithFields(logrus.Fields{
@@ -123,19 +123,69 @@ func GetOAuthRipple(c *fiber.Ctx) error {
 	user := structs.User{}
 	user.RippleId = rippleResp.UserId
 
-	// check if user with this RippleId exists
-	globals.DBConn.Preload("Session").First(&user, user)
-	sessionToken, err := genSessionToken(32)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"success": false,
-			"message": "Could not generate session token",
-			"error":   err.Error(),
+	// Check for session token
+	sessionToken, _ := globals.CheckAuth(c)
+	search := structs.User{
+		Session: structs.Session{
+			SessionToken: sessionToken,
+		},
+	}
+	res := structs.User{}
+
+	globals.DBConn.Preload("Session").First(&res, search)
+
+	// Associate ripple accounts if a previous session existed for a bancho user
+	if res.RippleId != 0 {
+		globals.Logger.WithFields(logrus.Fields{
+			"res": res,
+		}).Debug("Searched for session and found user")
+		user = res
+		user.RippleId = rippleResp.UserId
+		user.Username = rippleResp.Username
+
+		user.Session.AccessToken = token.AccessToken
+		user.Session.RefreshToken = token.RefreshToken
+
+		globals.Logger.WithFields(logrus.Fields{
+			"user": user,
+		}).Debug("Saving user")
+
+		err = globals.DBConn.Save(&user).Error
+
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"success": false,
+				"message": "Could not save user",
+				"error":   err.Error(),
+			})
+		}
+
+		c.Cookie(&fiber.Cookie{
+			Name:  "session_token",
+			Value: user.Session.SessionToken,
 		})
+
+		// Clean up after ourselfs
+		c.ClearCookie("oauth_state")
+
+		return c.Status(fiber.StatusOK).Redirect("/")
+
+	} else {
+		sessionToken, err = genSessionToken(32)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"success": false,
+				"message": "Could not generate session token",
+				"error":   err.Error(),
+			})
+		}
 	}
 
+	// check if user with this BanchoId exists
+	globals.DBConn.Preload("Session").First(&res, structs.User{BanchoId: user.BanchoId})
+
 	// check if user had a session
-	if user.Session.ID != 0 {
+	if res.Session.ID != 0 {
 		// update the session
 		user.Session.SessionToken = sessionToken
 		user.Session.AccessToken = token.AccessToken
@@ -249,19 +299,69 @@ func GetOAuthBancho(c *fiber.Ctx) error {
 	user := structs.User{}
 	user.BanchoId = banchoResp.Id
 
-	// check if user with this BanchoId exists
-	globals.DBConn.Preload("Session").First(&user, user)
-	sessionToken, err := genSessionToken(32)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"success": false,
-			"message": "Could not generate session token",
-			"error":   err.Error(),
+	// Check for session token
+	sessionToken, _ := globals.CheckAuth(c)
+	search := structs.User{
+		Session: structs.Session{
+			SessionToken: sessionToken,
+		},
+	}
+	res := structs.User{}
+
+	globals.DBConn.Preload("Session").First(&res, search)
+
+	// Associate ripple accounts if a previous session existed for a bancho user
+	if res.RippleId != 0 {
+		globals.Logger.WithFields(logrus.Fields{
+			"res": res,
+		}).Debug("Searched for session and found user")
+		user = res
+		user.BanchoId = banchoResp.Id
+		user.Username = banchoResp.Username
+
+		user.Session.AccessToken = token.AccessToken
+		user.Session.RefreshToken = token.RefreshToken
+
+		globals.Logger.WithFields(logrus.Fields{
+			"user": user,
+		}).Debug("Saving user")
+
+		err = globals.DBConn.Save(&user).Error
+
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"success": false,
+				"message": "Could not save user",
+				"error":   err.Error(),
+			})
+		}
+
+		c.Cookie(&fiber.Cookie{
+			Name:  "session_token",
+			Value: user.Session.SessionToken,
 		})
+
+		// Clean up after ourselfs
+		c.ClearCookie("oauth_state")
+
+		return c.Status(fiber.StatusOK).Redirect("/")
+
+	} else {
+		sessionToken, err = genSessionToken(32)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"success": false,
+				"message": "Could not generate session token",
+				"error":   err.Error(),
+			})
+		}
 	}
 
+	// check if user with this BanchoId exists
+	globals.DBConn.Preload("Session").First(&res, structs.User{BanchoId: user.BanchoId})
+
 	// check if user had a session
-	if user.Session.ID != 0 {
+	if res.Session.ID != 0 {
 		// update the session
 		user.Session.SessionToken = sessionToken
 		user.Session.AccessToken = token.AccessToken
@@ -275,6 +375,10 @@ func GetOAuthBancho(c *fiber.Ctx) error {
 		}
 		err = globals.DBConn.Save(&user).Error
 	}
+
+	globals.Logger.WithFields(logrus.Fields{
+		"user": user,
+	}).Debug("Saved User")
 
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{

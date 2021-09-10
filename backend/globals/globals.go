@@ -30,14 +30,14 @@ func checkToken(bearer string) bool {
 	return user.ID != 0
 }
 
-func CheckAuth(c *fiber.Ctx) error {
+func CheckAuth(c *fiber.Ctx) (string, error) {
 	// get authorization header
 	auth := c.Get("Authorization")
 	Logger.WithFields(logrus.Fields{
 		"auth": auth,
 	}).Debug("Checking token")
 	if auth == "" {
-		return fiber.ErrUnauthorized
+		return "", fiber.ErrUnauthorized
 	}
 
 	// get token
@@ -48,8 +48,8 @@ func CheckAuth(c *fiber.Ctx) error {
 
 	// check if token is in database
 	if !checkToken(token) {
-		return fiber.ErrUnauthorized
+		return "", fiber.ErrUnauthorized
 	}
 
-	return nil
+	return token, nil
 }

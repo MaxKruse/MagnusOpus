@@ -26,13 +26,12 @@ type User struct {
 	gorm.Model
 	RippleId int
 	BanchoId int
+	Username string
 	Session  Session
 }
 
-type RipplePing struct {
-	Code     int    `json:"code"`
-	Message  string `json:"message"`
-	UserId   int    `json:"user_id"`
+type RippleSelf struct {
+	UserId   int    `json:"id"`
 	Username string `json:"username"`
 }
 
