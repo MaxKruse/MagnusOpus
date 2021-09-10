@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"io"
 	"os"
-	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/maxkruse/magnusopus/backend/globals"
@@ -49,7 +48,7 @@ func genSessionToken(n int) (string, error) {
 	return base64.StdEncoding.EncodeToString(data), nil
 }
 
-func GetOauth(c *fiber.Ctx) error {
+func GetOAuthRipple(c *fiber.Ctx) error {
 	// Get the oauth2 config
 	oauthConfig := oauth2.Config{
 		ClientID:     os.Getenv("RIPPLE_OAUTH_CLIENT_ID"),
@@ -67,7 +66,6 @@ func GetOauth(c *fiber.Ctx) error {
 	code := c.Query("code")
 
 	if code == "" {
-		// Redirect to the oauth page
 		state, err := genSessionToken(32)
 		if err != nil {
 			return err
@@ -79,31 +77,21 @@ func GetOauth(c *fiber.Ctx) error {
 			Value: state,
 		}
 		c.Cookie(cookie)
+
+		globals.Logger.WithFields(logrus.Fields{
+			"state":    state,
+			"redirect": oauthConfig.AuthCodeURL(state),
+		}).Debug("Generated new state, redirecting")
+
 		return c.Redirect(oauthConfig.AuthCodeURL(state))
 	}
 
+	token, err := getOauth(c, &oauthConfig, code)
+
 	globals.Logger.WithFields(logrus.Fields{
-		"code": code,
-	}).Debug("Received code")
+		"token": token,
+	}).Info("Got token")
 
-	// Read oauthState from Cookie
-	oauth_state := c.Cookies("oauth_state")
-
-	if c.Query("state") != oauth_state {
-		globals.Logger.WithFields(logrus.Fields{
-			"state":       c.Query("state"),
-			"oauth_state": oauth_state,
-			"connection":  c.IP(),
-		}).Error("State mismatch")
-
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"success": false,
-			"message": "invalid oauth state",
-		})
-		// return c.Redirect("/")
-	}
-
-	token, err := oauthConfig.Exchange(context.Background(), code)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success": false,
@@ -118,7 +106,7 @@ func GetOauth(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success": false,
-			"message": "Could not get user info",
+			"message": "Could not get user data",
 			"error":   err.Error(),
 		})
 	}
@@ -127,6 +115,10 @@ func GetOauth(c *fiber.Ctx) error {
 
 	rippleResp := structs.RipplePing{}
 	json.NewDecoder(resp.Body).Decode(&rippleResp)
+
+	globals.Logger.WithFields(logrus.Fields{
+		"user": rippleResp,
+	}).Info("Got user data")
 
 	user := structs.User{}
 	user.RippleId = rippleResp.UserId
@@ -147,6 +139,7 @@ func GetOauth(c *fiber.Ctx) error {
 		// update the session
 		user.Session.SessionToken = sessionToken
 		user.Session.AccessToken = token.AccessToken
+		user.Session.RefreshToken = token.RefreshToken
 		err = globals.DBConn.Save(&user.Session).Error
 
 	} else {
@@ -179,13 +172,159 @@ func GetOauth(c *fiber.Ctx) error {
 		Value: user.Session.SessionToken,
 	})
 
+	// Clean up after ourselfs
+	c.ClearCookie("oauth_state")
+
+	return c.Status(fiber.StatusOK).Redirect("/")
+}
+
+func GetOAuthBancho(c *fiber.Ctx) error {
+	// Get the oauth2 config
+	oauthConfig := oauth2.Config{
+		ClientID:     os.Getenv("BANCHO_OAUTH_CLIENT_ID"),
+		ClientSecret: os.Getenv("BANCHO_OAUTH_CLIENT_SECRET"),
+		Endpoint: oauth2.Endpoint{
+			AuthURL:   "https://osu.ppy.sh/oauth/authorize",
+			TokenURL:  "https://osu.ppy.sh/oauth/token",
+			AuthStyle: oauth2.AuthStyleAutoDetect,
+		},
+		RedirectURL: os.Getenv("BANCHO_OAUTH_REDIRECT_URL"),
+		Scopes:      []string{""},
+	}
+
+	// Get the code
+	code := c.Query("code")
+
+	if code == "" {
+		state, err := genSessionToken(32)
+		if err != nil {
+			return err
+		}
+
+		// make new cookie with state value
+		cookie := &fiber.Cookie{
+			Name:  "oauth_state",
+			Value: state,
+		}
+		c.Cookie(cookie)
+
+		globals.Logger.WithFields(logrus.Fields{
+			"state":    state,
+			"redirect": oauthConfig.AuthCodeURL(state),
+		}).Debug("Generated new state, redirecting")
+
+		return c.Redirect(oauthConfig.AuthCodeURL(state))
+	}
+
+	token, err := getOauth(c, &oauthConfig, code)
+
+	globals.Logger.WithFields(logrus.Fields{
+		"token": token,
+	}).Info("Got token")
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"success": false,
+			"message": "Could not get token",
+			"error":   err.Error(),
+		})
+	}
+
+	// Get the user info
+	client := oauthConfig.Client(context.Background(), token)
+	resp, err := client.Get("https://osu.ppy.sh/api/v2/me/osu")
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"success": false,
+			"message": "Could not get user data",
+			"error":   err.Error(),
+		})
+	}
+
+	defer resp.Body.Close()
+
+	banchoResp := structs.BanchoMe{}
+	json.NewDecoder(resp.Body).Decode(&banchoResp)
+
+	user := structs.User{}
+	user.BanchoId = banchoResp.Id
+
+	// check if user with this BanchoId exists
+	globals.DBConn.Preload("Session").First(&user, user)
+	sessionToken, err := genSessionToken(32)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"success": false,
+			"message": "Could not generate session token",
+			"error":   err.Error(),
+		})
+	}
+
+	// check if user had a session
+	if user.Session.ID != 0 {
+		// update the session
+		user.Session.SessionToken = sessionToken
+		user.Session.AccessToken = token.AccessToken
+		user.Session.RefreshToken = token.RefreshToken
+		err = globals.DBConn.Save(&user.Session).Error
+
+	} else {
+		user.Session = structs.Session{
+			AccessToken:  token.AccessToken,
+			SessionToken: sessionToken,
+		}
+		err = globals.DBConn.Save(&user).Error
+	}
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"success": false,
+			"message": "Could not save user",
+			"error":   err.Error(),
+		})
+	}
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"success": false,
+			"message": "Could not unmarshal user info",
+			"error":   err.Error(),
+		})
+	}
+
 	c.Cookie(&fiber.Cookie{
-		Name:  "user_id",
-		Value: strconv.Itoa(user.RippleId),
+		Name:  "session_token",
+		Value: user.Session.SessionToken,
 	})
 
 	// Clean up after ourselfs
 	c.ClearCookie("oauth_state")
 
 	return c.Status(fiber.StatusOK).Redirect("/")
+}
+
+func getOauth(c *fiber.Ctx, oauthConfig *oauth2.Config, code string) (*oauth2.Token, error) {
+	globals.Logger.WithFields(logrus.Fields{
+		"code": code,
+	}).Debug("Received code")
+
+	// Read oauthState from Cookie
+	oauth_state := c.Cookies("oauth_state")
+
+	if c.Query("state") != oauth_state {
+		globals.Logger.WithFields(logrus.Fields{
+			"state":       c.Query("state"),
+			"oauth_state": oauth_state,
+			"connection":  c.IP(),
+		}).Error("State mismatch")
+
+		return nil, fiber.ErrBadRequest
+	}
+
+	token, err := oauthConfig.Exchange(context.Background(), code)
+	if err != nil {
+		return nil, fiber.ErrInternalServerError
+	}
+
+	return token, nil
 }

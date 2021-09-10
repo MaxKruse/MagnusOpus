@@ -4,7 +4,6 @@ import (
 	// Import logrus
 
 	"os"
-	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
@@ -13,6 +12,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/maxkruse/magnusopus/backend/globals"
 	"github.com/maxkruse/magnusopus/backend/routes"
+	"github.com/maxkruse/magnusopus/backend/routes/tournaments"
 	"github.com/maxkruse/magnusopus/backend/structs"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
@@ -53,6 +53,8 @@ func init() {
 	// Migrate Tables
 	globals.DBConn.AutoMigrate(&structs.User{})
 	globals.DBConn.AutoMigrate(&structs.Session{})
+	globals.DBConn.AutoMigrate(&structs.Round{})
+	globals.DBConn.AutoMigrate(&structs.Tournament{})
 	globals.Logger.Debug("Migrated")
 
 	globals.Logger.Info("Starting Magnusopus backend")
@@ -60,11 +62,6 @@ func init() {
 }
 
 func checkSessionCookie(c *fiber.Ctx) error {
-	// dont checck for /oauth
-	if c.Path() == "/oauth" {
-		return c.Next()
-	}
-
 	// Check if session cookie is set
 	session_token := c.Cookies("session_token")
 	if session_token == "" {
@@ -77,9 +74,6 @@ func checkSessionCookie(c *fiber.Ctx) error {
 	// check if auth_token is in database
 	user := structs.User{}
 	user.Session = structs.Session{SessionToken: session_token}
-	rippleId := c.Cookies("user_id")
-	// convert rippleId to string
-	user.RippleId, _ = strconv.Atoi(rippleId)
 
 	globals.DBConn.Preload("Session").First(&user, user)
 	if user.Session.ID == 0 {
@@ -90,8 +84,6 @@ func checkSessionCookie(c *fiber.Ctx) error {
 			"message": "no session found, please login",
 		})
 	}
-
-	globals.Logger.WithFields(logrus.Fields{"user": user}).Debug("User")
 
 	return c.Next()
 }
@@ -107,11 +99,20 @@ func main() {
 	app.Use(compress.New())
 	app.Use(recover.New())
 
-	// use custom middleware
-	app.Use(checkSessionCookie)
+	// oauth routes
+	oauth := app.Group("/oauth")
+	oauth.Get("/ripple", routes.GetOAuthRipple)
+	oauth.Get("/bancho", routes.GetOAuthBancho)
 
-	app.Post("/api/v1/upload", routes.Upload)
-	app.Get("/oauth", routes.GetOauth)
+	api := app.Group("/api")
+
+	// use custom middleware
+	api.Use(checkSessionCookie)
+
+	v1 := api.Group("/v1")
+
+	v1.Get("/tournaments", tournaments.GetTournaments)
+	v1.Get("/tournaments/:id", tournaments.GetTournament)
 
 	app.Listen(":5000")
 }

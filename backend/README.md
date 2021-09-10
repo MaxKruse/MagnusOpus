@@ -1,8 +1,8 @@
 # Todos
 
-- [ ] Support for multiple servers
-- [ ] Support for signup using bancho
-- [ ] Support for signup using  ripple
+- [x] Support for multiple servers
+- [x] Support for signup using bancho
+- [x] Support for signup using  ripple
 - [ ] Logout user per server
 - [ ] Save user data per server
 - [ ] Save beatmap 

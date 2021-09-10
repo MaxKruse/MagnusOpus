@@ -1,6 +1,19 @@
 :80 {
-	reverse_proxy /api/* http://backend:5000
-	reverse_proxy /admin/* http://admin:8080
-	reverse_proxy /oauth http://backend:5000
-	reverse_proxy http://frontend:8080
+	encode zstd gzip
+
+	handle /api* {
+		reverse_proxy http://backend:5000
+	}
+
+	handle /admin* {
+		reverse_proxy http://admin:80
+	}
+
+	handle /oauth* {
+		reverse_proxy http://backend:5000
+	}
+
+	handle {
+		reverse_proxy http://frontend:80
+	}
 }

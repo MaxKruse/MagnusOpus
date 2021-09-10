@@ -1,4 +1,3 @@
 FROM nginx
 
-
-CMD ["/usr/sbin/nginx", "-g", "daemon off;"]
+COPY ./index.html /usr/share/nginx/html/index.html

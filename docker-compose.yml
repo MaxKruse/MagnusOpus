@@ -49,6 +49,9 @@ services:
     env_file: 
       - postgres.env
 
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
   caddy:
     image: caddy:alpine
     restart: unless-stopped
@@ -59,3 +62,6 @@ services:
     ports:
       - "80:80"
       - "443:443"
+
+volumes: 
+  db-data:
