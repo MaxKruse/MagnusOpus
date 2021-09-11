@@ -111,6 +111,8 @@ func main() {
 
 	v1 := api.Group("/v1")
 
+	v1.Get("/me", routes.Me)
+
 	v1.Get("/tournaments", tournaments.GetTournaments)
 	v1.Get("/tournaments/:id", tournaments.GetTournament)
 

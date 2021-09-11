@@ -53,3 +53,25 @@ func CheckAuth(c *fiber.Ctx) (string, error) {
 
 	return token, nil
 }
+
+func GetSelf(c *fiber.Ctx) (structs.User, error) {
+	token, err := CheckAuth(c)
+	if err != nil {
+		return structs.User{}, err
+	}
+
+	search := structs.User{
+		Session: structs.Session{
+			SessionToken: token,
+		},
+	}
+
+	res := structs.User{}
+	err = DBConn.Find(&res, search).Error
+
+	if err != nil {
+		return structs.User{}, err
+	}
+
+	return res, nil
+}
