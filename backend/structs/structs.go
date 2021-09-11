@@ -24,20 +24,20 @@ type Session struct {
 
 type User struct {
 	gorm.Model
-	RippleId int
-	BanchoId int
-	Username string
-	Session  Session
+	RippleId int      `json:"ripple_id ,omitempty"`
+	BanchoId int      `json:"bancho_id ,omitempty"`
+	Username string   `json:"username ,omitempty"`
+	Session  *Session `json:"session ,omitempty"`
 }
 
 type RippleSelf struct {
-	UserId   int    `json:"id"`
-	Username string `json:"username"`
+	UserId   int    `json:"id ,omitempty"`
+	Username string `json:"username ,omitempty"`
 }
 
 type BanchoMe struct {
-	Id       int    `json:"id"`
-	Username string `json:"username"`
+	Id       int    `json:"id ,omitempty"`
+	Username string `json:"username ,omitempty"`
 }
 
 type Round struct {
@@ -49,6 +49,12 @@ type Round struct {
 	EndTime      time.Time `json:"end_time,omitempty"`
 }
 
+type Staff struct {
+	gorm.Model
+	UserId int
+	Role   string `json:"role"`
+}
+
 type Tournament struct {
 	gorm.Model
 	Name         string    `json:"name,omitempty"`
@@ -56,5 +62,6 @@ type Tournament struct {
 	DownloadPath string    `json:"file,omitempty"`
 	StartTime    time.Time `json:"start_time,omitempty"`
 	EndTime      time.Time `json:"end_time,omitempty"`
-	rounds       []Round   `json:"rounds,omitempty"`
+	rounds       *[]Round  `json:"rounds,omitempty"`
+	staffs       *[]Staff  `json:"staffs,omitempty"`
 }

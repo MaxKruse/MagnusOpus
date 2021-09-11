@@ -73,7 +73,7 @@ func checkSessionCookie(c *fiber.Ctx) error {
 
 	// check if auth_token is in database
 	user := structs.User{}
-	user.Session = structs.Session{SessionToken: session_token}
+	user.Session = &structs.Session{SessionToken: session_token}
 
 	globals.DBConn.Preload("Session").First(&user, user)
 	if user.Session.ID == 0 {

@@ -17,7 +17,7 @@ func GetTournaments(c *fiber.Ctx) error {
 func GetTournament(c *fiber.Ctx) error {
 	tournament := structs.Tournament{}
 
-	globals.DBConn.Preload("Round").First(&tournament, c.Params("id"))
+	globals.DBConn.Preload("User").Preload("Staff").Preload("Round").First(&tournament, c.Params("id"))
 
 	return c.Status(fiber.StatusOK).JSON(tournament)
 }

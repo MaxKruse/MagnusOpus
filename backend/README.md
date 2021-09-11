@@ -4,8 +4,7 @@
 - [x] Support for signup using bancho
 - [x] Support for signup using ripple
 - [X] Associate accounts across servers
-- [ ] Logout user per server
-- [ ] Save user data per server
+- [ ] Save user data
 - [ ] Save beatmap 
 
 
@@ -24,9 +23,15 @@ Any specific types are in reference to golangs default types.
            "start_time": "time.Time",
            "end_time": "time.Time",
            "rounds": [
-               "round",
-               "round",
-               "round",
+                "round",
+                "round",
+                "round",
+           ],
+           "current_round": "int",
+           "staffs": [
+                "staff",
+                "staff",
+                "staff",
            ]
        }
     ```

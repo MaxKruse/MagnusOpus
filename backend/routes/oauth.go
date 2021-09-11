@@ -126,7 +126,7 @@ func GetOAuthRipple(c *fiber.Ctx) error {
 	// Check for session token
 	sessionToken, _ := globals.CheckAuth(c)
 	search := structs.User{
-		Session: structs.Session{
+		Session: &structs.Session{
 			SessionToken: sessionToken,
 		},
 	}
@@ -193,7 +193,7 @@ func GetOAuthRipple(c *fiber.Ctx) error {
 		err = globals.DBConn.Save(&user.Session).Error
 
 	} else {
-		user.Session = structs.Session{
+		user.Session = &structs.Session{
 			AccessToken:  token.AccessToken,
 			SessionToken: sessionToken,
 		}
@@ -302,7 +302,7 @@ func GetOAuthBancho(c *fiber.Ctx) error {
 	// Check for session token
 	sessionToken, _ := globals.CheckAuth(c)
 	search := structs.User{
-		Session: structs.Session{
+		Session: &structs.Session{
 			SessionToken: sessionToken,
 		},
 	}
@@ -369,7 +369,7 @@ func GetOAuthBancho(c *fiber.Ctx) error {
 		err = globals.DBConn.Save(&user.Session).Error
 
 	} else {
-		user.Session = structs.Session{
+		user.Session = &structs.Session{
 			AccessToken:  token.AccessToken,
 			SessionToken: sessionToken,
 		}

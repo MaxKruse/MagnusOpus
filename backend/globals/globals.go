@@ -17,7 +17,7 @@ func checkToken(bearer string) bool {
 
 	// check if token is in database
 	user := structs.User{
-		Session: structs.Session{
+		Session: &structs.Session{
 			SessionToken: bearer,
 		},
 	}
@@ -61,7 +61,7 @@ func GetSelf(c *fiber.Ctx) (structs.User, error) {
 	}
 
 	search := structs.User{
-		Session: structs.Session{
+		Session: &structs.Session{
 			SessionToken: token,
 		},
 	}
