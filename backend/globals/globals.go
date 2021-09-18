@@ -2,53 +2,53 @@ package globals
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/maxkruse/magnusopus/backend/structs"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
 var (
-	Logger *logrus.Logger
-	Config structs.Config
-	DBConn *gorm.DB
+	Logger       *logrus.Logger
+	Config       structs.Config
+	DBConn       *gorm.DB
+	SessionStore *session.Store
 )
 
 func checkToken(bearer string) bool {
-
 	// check if token is in database
-	user := structs.User{
-		Session: &structs.Session{
-			SessionToken: bearer,
-		},
-	}
+	user := structs.NewUser()
+	user.Session.SessionToken = bearer
 
-	DBConn.Preload("Session").First(&user, user)
-	Logger.WithFields(logrus.Fields{
-		"token": bearer,
-	}).Debug("Checking token")
-
+	DBConn.Debug().Preload("Session").First(&user, user)
 	return user.ID != 0
 }
 
 func CheckAuth(c *fiber.Ctx) (string, error) {
-	// get authorization header
-	auth := c.Get("Authorization")
-	Logger.WithFields(logrus.Fields{
-		"auth": auth,
-	}).Debug("Checking token")
-	if auth == "" {
-		return "", fiber.ErrUnauthorized
+	sess, err := SessionStore.Get(c)
+	if err != nil {
+		return "", err
 	}
 
-	// get token
-	token := auth[7:]
-	Logger.WithFields(logrus.Fields{
-		"token": token,
-	}).Debug("Checking token")
+	// get authorization header
+	auth := c.Get("Authorization")
+	token := ""
+
+	if len(auth) > 0 {
+		token := auth[7:]
+		Logger.WithField("token", token).Debug("Checking token from Authorization")
+	} else {
+		token = sess.ID()
+		Logger.WithField("token", token).Debug("Checking token from session_id")
+	}
 
 	// check if token is in database
 	if !checkToken(token) {
 		return "", fiber.ErrUnauthorized
+	}
+
+	if err := sess.Save(); err != nil {
+		return "", err
 	}
 
 	return token, nil
@@ -57,20 +57,19 @@ func CheckAuth(c *fiber.Ctx) (string, error) {
 func GetSelf(c *fiber.Ctx) (structs.User, error) {
 	token, err := CheckAuth(c)
 	if err != nil {
-		return structs.User{}, err
+		return structs.NewUser(), err
 	}
 
-	search := structs.User{
-		Session: &structs.Session{
-			SessionToken: token,
-		},
-	}
+	search := structs.NewUser()
+	search.Session.SessionToken = token
 
-	res := structs.User{}
-	err = DBConn.Find(&res, search).Error
+	Logger.WithField("token", token).Debug("Getting user from search")
+
+	res := structs.NewUser()
+	err = DBConn.Debug().Preload("Session").Find(&res, search).Error
 
 	if err != nil {
-		return structs.User{}, err
+		return structs.NewUser(), err
 	}
 
 	return res, nil

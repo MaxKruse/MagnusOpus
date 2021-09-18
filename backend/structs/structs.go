@@ -15,24 +15,32 @@ type Config struct {
 
 // User struct
 type Session struct {
-	gorm.Model
-	UserID       uint
-	SessionToken string `gorm:"type:text"`
-	AccessToken  string `gorm:"type:text"`
-	RefreshToken string `gorm:"type:text"`
+	JsonModel
+	UserID       uint   `json:"-"`
+	SessionToken string `gorm:"type:text" json:",omitempty"`
+	AccessToken  string `gorm:"type:text" json:",omitempty"`
+	RefreshToken string `gorm:"type:text" json:",omitempty"`
 }
 
 type User struct {
-	gorm.Model
+	JsonModel
 	RippleId int      `json:"ripple_id ,omitempty"`
-	BanchoId int      `json:"bancho_id ,omitempty"`
 	Username string   `json:"username ,omitempty"`
 	Session  *Session `json:"session ,omitempty"`
 }
 
+func NewUser() User {
+	r := User{}
+	r.Session = new(Session)
+
+	return r
+}
+
 type RippleSelf struct {
-	UserId   int    `json:"id ,omitempty"`
-	Username string `json:"username ,omitempty"`
+	Code     int    `json:"code"`
+	Message  string `json:"message"`
+	UserId   int    `json:"id"`
+	Username string `json:"username"`
 }
 
 type BanchoMe struct {
@@ -41,7 +49,7 @@ type BanchoMe struct {
 }
 
 type Round struct {
-	gorm.Model
+	JsonModel
 	TournamentId int       `json:"tournament_id,omitempty"`
 	Name         string    `json:"name,omitempty"`
 	Description  string    `json:"description,omitempty"`
@@ -50,18 +58,25 @@ type Round struct {
 }
 
 type Staff struct {
-	gorm.Model
-	UserId int
+	JsonModel
+	UserId int    `json:"user_id"`
 	Role   string `json:"role"`
 }
 
 type Tournament struct {
-	gorm.Model
+	JsonModel
 	Name         string    `json:"name,omitempty"`
 	Description  string    `json:"description,omitempty"`
 	DownloadPath string    `json:"file,omitempty"`
 	StartTime    time.Time `json:"start_time,omitempty"`
 	EndTime      time.Time `json:"end_time,omitempty"`
-	rounds       *[]Round  `json:"rounds,omitempty"`
-	staffs       *[]Staff  `json:"staffs,omitempty"`
+	rounds       []*Round  `json:"rounds,omitempty"`
+	staffs       []*Staff  `json:"staffs,omitempty"`
+}
+
+type JsonModel struct {
+	ID        uint           `gorm:"primarykey" json:"id"`
+	CreatedAt time.Time      `json:"-"`
+	UpdatedAt time.Time      `json:"-"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
 }

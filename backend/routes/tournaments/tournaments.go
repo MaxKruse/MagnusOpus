@@ -7,9 +7,9 @@ import (
 )
 
 func GetTournaments(c *fiber.Ctx) error {
-	tournaments := []structs.Tournament{}
+	tournaments := []*structs.Tournament{}
 
-	globals.DBConn.Preload("Round").Find(&tournaments)
+	globals.DBConn.Debug().Preload("Round").Find(&tournaments)
 
 	return c.Status(fiber.StatusOK).JSON(tournaments)
 }
@@ -17,7 +17,11 @@ func GetTournaments(c *fiber.Ctx) error {
 func GetTournament(c *fiber.Ctx) error {
 	tournament := structs.Tournament{}
 
-	globals.DBConn.Preload("User").Preload("Staff").Preload("Round").First(&tournament, c.Params("id"))
+	err := globals.DBConn.Debug().Preload("User").Preload("Staff").Preload("Round").First(&tournament, c.Params("id")).Error
+
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{})
+	}
 
 	return c.Status(fiber.StatusOK).JSON(tournament)
 }

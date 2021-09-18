@@ -8,7 +8,6 @@
 </head>
 <body>
 	<p><a href="/oauth/ripple">Login using Ripple</a></p>
-	<p><a href="/oauth/bancho">Login using Bancho</a></p>
 
 	<div id="token">
 	</div>
@@ -16,7 +15,7 @@
 
 <script>
 	// get cookie
-	var token = getCookie("session_token");
+	var token = getCookie("session_id");
 
 	if (token) {
 		document.getElementById('token').innerHTML = '<p>Token: ' + token + '</p>';

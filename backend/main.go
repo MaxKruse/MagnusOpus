@@ -4,12 +4,14 @@ import (
 	// Import logrus
 
 	"os"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/etag"
 	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gofiber/fiber/v2/middleware/session"
+	"github.com/gofiber/storage/sqlite3"
 	"github.com/maxkruse/magnusopus/backend/globals"
 	"github.com/maxkruse/magnusopus/backend/routes"
 	"github.com/maxkruse/magnusopus/backend/routes/tournaments"
@@ -17,6 +19,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	glog "gorm.io/gorm/logger"
 )
 
 func init() {
@@ -30,7 +33,7 @@ func init() {
 
 	// Set log config
 	globals.Logger.SetFormatter(&logrus.JSONFormatter{
-		TimestampFormat: "2006-01-02 15:04:05",
+		TimestampFormat: "2006-01-02 15:04:05.1234",
 		PrettyPrint:     true,
 		DataKey:         "data",
 	})
@@ -43,7 +46,10 @@ func init() {
 
 	// connect to database
 	err := error(nil)
-	globals.DBConn, err = gorm.Open(postgres.Open(globals.Config.POSTGRES_URL), &gorm.Config{})
+	globals.DBConn, err = gorm.Open(postgres.Open(globals.Config.POSTGRES_URL), &gorm.Config{
+		PrepareStmt: true,
+		Logger:      glog.Default.LogMode(glog.Info),
+	})
 	if err != nil {
 		globals.Logger.Fatal(err)
 		os.Exit(1)
@@ -57,23 +63,39 @@ func init() {
 	globals.DBConn.AutoMigrate(&structs.Tournament{})
 	globals.Logger.Debug("Migrated")
 
+	globals.SessionStore = session.New(session.Config{
+		Expiration: time.Hour * 24 * 7 * 31, // 1 Month
+		Storage: sqlite3.New(sqlite3.Config{
+			Reset:    false,
+			Database: "/storage/sessions.db",
+		}),
+	})
+
 	globals.Logger.Info("Starting Magnusopus backend")
 	globals.Logger.WithFields(logrus.Fields{"config": globals.Config}).Debug("Config")
 }
 
 func checkSessionCookie(c *fiber.Ctx) error {
+	// check if session is valid
+	_, err := globals.SessionStore.Get(c)
+	if err != nil {
+		globals.Logger.WithFields(logrus.Fields{"error": err}).Error("Session error")
+		return err
+	}
+
 	// Check if session cookie is set
-	session_token := c.Cookies("session_token")
-	if session_token == "" {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+	session_token, err := globals.CheckAuth(c)
+
+	if err != nil {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"error":   err.Error(),
 			"success": false,
-			"message": "no session_token, please login",
 		})
 	}
 
 	// check if auth_token is in database
-	user := structs.User{}
-	user.Session = &structs.Session{SessionToken: session_token}
+	user := structs.NewUser()
+	user.Session.SessionToken = session_token
 
 	globals.DBConn.Preload("Session").First(&user, user)
 	if user.Session.ID == 0 {
@@ -94,15 +116,15 @@ func main() {
 	})
 
 	// use middlewares
-	app.Use(logger.New())
+	app.Use(logger.New(logger.Config{
+		TimeFormat: "2006-01-02 15:04:05.1234",
+	}))
 	app.Use(etag.New())
 	app.Use(compress.New())
-	app.Use(recover.New())
 
 	// oauth routes
 	oauth := app.Group("/oauth")
 	oauth.Get("/ripple", routes.GetOAuthRipple)
-	oauth.Get("/bancho", routes.GetOAuthBancho)
 
 	api := app.Group("/api")
 

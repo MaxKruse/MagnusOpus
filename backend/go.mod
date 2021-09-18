@@ -9,12 +9,12 @@ require (
 	github.com/jinzhu/now v1.1.2 // indirect
 	golang.org/x/sys v0.0.0-20210514084401-e8d321eab015 // indirect
 	gorm.io/driver/postgres v1.1.0
-	gorm.io/gorm v1.21.14 // indirect
 )
 
 require (
 	github.com/andybalholm/brotli v1.0.3 // indirect
-	github.com/gofiber/fiber/v2 v2.18.0 // indirect
+	github.com/gofiber/fiber/v2 v2.18.0
+	github.com/gofiber/storage/sqlite3 v0.0.0-20210602124502-f0233feaea00
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.8.1 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect
@@ -30,19 +30,14 @@ require (
 	golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a // indirect
 	golang.org/x/oauth2 v0.0.0-20210819190943-2bc19b11175f
 	golang.org/x/text v0.3.6 // indirect
+	gorm.io/gorm v1.21.14
 )
 
 require (
-	github.com/gofiber/fiber v1.14.6
 	github.com/golang/protobuf v1.4.2 // indirect
 	golang.org/x/net v0.0.0-20210510120150-4163338589ed // indirect
 	google.golang.org/appengine v1.6.6 // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
 )
 
-require (
-	github.com/gofiber/utils v0.0.10 // indirect
-	github.com/gorilla/schema v1.1.0 // indirect
-	github.com/mattn/go-colorable v0.1.7 // indirect
-	github.com/mattn/go-isatty v0.0.12 // indirect
-)
+require github.com/mattn/go-sqlite3 v1.14.7 // indirect
