@@ -49,6 +49,9 @@ services:
     env_file: 
       - postgres.env
 
+    ports: 
+      - "5432:5432"
+
   caddy:
     image: caddy:alpine
     restart: unless-stopped

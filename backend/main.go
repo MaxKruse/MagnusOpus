@@ -8,7 +8,6 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
-	"github.com/gofiber/fiber/v2/middleware/etag"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/gofiber/storage/sqlite3"
@@ -16,6 +15,7 @@ import (
 	"github.com/maxkruse/magnusopus/backend/routes"
 	"github.com/maxkruse/magnusopus/backend/routes/tournaments"
 	"github.com/maxkruse/magnusopus/backend/structs"
+	"github.com/maxkruse/magnusopus/backend/util"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -59,8 +59,8 @@ func init() {
 	// Migrate Tables
 	globals.DBConn.AutoMigrate(&structs.User{})
 	globals.DBConn.AutoMigrate(&structs.Session{})
-	globals.DBConn.AutoMigrate(&structs.Round{})
 	globals.DBConn.AutoMigrate(&structs.Tournament{})
+	globals.DBConn.AutoMigrate(&structs.Round{})
 	globals.Logger.Debug("Migrated")
 
 	globals.SessionStore = session.New(session.Config{
@@ -83,8 +83,7 @@ func checkSessionCookie(c *fiber.Ctx) error {
 		return err
 	}
 
-	// Check if session cookie is set
-	session_token, err := globals.CheckAuth(c)
+	user, err := util.GetSelf(c)
 
 	if err != nil {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
@@ -93,34 +92,28 @@ func checkSessionCookie(c *fiber.Ctx) error {
 		})
 	}
 
-	// check if auth_token is in database
-	user := structs.NewUser()
-	user.Session.SessionToken = session_token
-
-	globals.DBConn.Preload("Session").First(&user, user)
-	if user.Session.ID == 0 {
-
-		// no valid session found with given credentials, return error
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"success": false,
-			"message": "no session found, please login",
-		})
-	}
+	globals.Logger.WithField("user", user).Debug("User")
 
 	return c.Next()
 }
 
 func main() {
 	app := fiber.New(fiber.Config{
-		Prefork: false, // true = multithreaded, false = singlethreaded
+		Prefork:      false, // true = multithreaded, false = singlethreaded
+		ETag:         true,
+		WriteTimeout: time.Second * 5, // 5 seconds to send a response. In cases we lag, we dont want them to wait forever
 	})
 
 	// use middlewares
 	app.Use(logger.New(logger.Config{
 		TimeFormat: "2006-01-02 15:04:05.1234",
+		TimeZone:   "UTC",
 	}))
-	app.Use(etag.New())
-	app.Use(compress.New())
+	app.Use(compress.New(
+		compress.Config{
+			Level: compress.LevelBestCompression,
+		},
+	))
 
 	// oauth routes
 	oauth := app.Group("/oauth")
@@ -128,15 +121,20 @@ func main() {
 
 	api := app.Group("/api")
 
-	// use custom middleware
+	// use custom middleware for the entire api
 	api.Use(checkSessionCookie)
 
+	// add api v1 (backwards compatability stuff)
 	v1 := api.Group("/v1")
 
 	v1.Get("/me", routes.Me)
+	v1.Get("/self", routes.Me)
 
+	// Tournament
 	v1.Get("/tournaments", tournaments.GetTournaments)
 	v1.Get("/tournaments/:id", tournaments.GetTournament)
 
-	app.Listen(":5000")
+	v1.Post("/tournaments", tournaments.PostTournament)
+
+	globals.Logger.Fatal(app.Listen(":5000"))
 }

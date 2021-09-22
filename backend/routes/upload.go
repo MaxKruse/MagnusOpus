@@ -5,12 +5,12 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/maxkruse/magnusopus/backend/globals"
+	"github.com/maxkruse/magnusopus/backend/util"
 )
 
 func Upload(c *fiber.Ctx) error {
 	// check if authenticated
-	if _, err := globals.CheckAuth(c); err != nil {
+	if _, err := util.CheckAuth(c); err != nil {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"success": false,
 			"message": err.Error(),

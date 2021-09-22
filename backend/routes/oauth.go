@@ -35,6 +35,7 @@ func GetOAuthRipple(c *fiber.Ctx) error {
 	code := c.Query("code")
 
 	if code == "" {
+		sess.Regenerate()
 		id := sess.ID()
 		sess.Set("oauth_state", id)
 		// Save session
@@ -89,24 +90,19 @@ func GetOAuthRipple(c *fiber.Ctx) error {
 		})
 	}
 
-	user := structs.NewUser()
+	// Save user
+	user := structs.User{}
+	globals.DBConn.Preload("Session").First(&user, "ripple_id = ?", rippleResp.UserId).Debug()
 
-	// Check for session token
-	sessionToken, _ := globals.CheckAuth(c)
-	search := structs.NewUser()
-	search.Session.SessionToken = sessionToken
-	res := structs.NewUser()
-
-	globals.DBConn.Debug().Preload("Session").First(&res, search)
-
-	// check if a user was found
-	if res.ID != 0 {
-		user = res
-	}
-
+	globals.Logger.WithField("user", user).Info("Saving user")
+	user.RippleId = rippleResp.UserId
+	user.Username = rippleResp.Username
 	user.Session.SessionToken = sess.ID()
 
+	globals.Logger.WithField("user", user).Info("Saving user")
+
 	globals.DBConn.Debug().Save(&user)
+	globals.DBConn.Debug().Save(&user.Session)
 
 	// Save session
 	if err := sess.Save(); err != nil {
