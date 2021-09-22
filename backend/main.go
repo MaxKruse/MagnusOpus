@@ -8,6 +8,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
+	"github.com/gofiber/fiber/v2/middleware/etag"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/gofiber/storage/sqlite3"
@@ -99,8 +100,7 @@ func checkSessionCookie(c *fiber.Ctx) error {
 
 func main() {
 	app := fiber.New(fiber.Config{
-		Prefork:      false, // true = multithreaded, false = singlethreaded
-		ETag:         true,
+		Prefork:      false,           // true = multithreaded, false = singlethreaded
 		WriteTimeout: time.Second * 5, // 5 seconds to send a response. In cases we lag, we dont want them to wait forever
 	})
 
@@ -114,6 +114,7 @@ func main() {
 			Level: compress.LevelBestCompression,
 		},
 	))
+	app.Use(etag.New())
 
 	// oauth routes
 	oauth := app.Group("/oauth")
