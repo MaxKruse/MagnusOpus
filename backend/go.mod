@@ -40,4 +40,9 @@ require (
 	google.golang.org/protobuf v1.25.0 // indirect
 )
 
-require github.com/mattn/go-sqlite3 v1.14.7 // indirect
+require (
+	github.com/gofiber/storage/mongodb v0.0.0-20210922062006-ff033d0e0e86
+	github.com/gofiber/storage/postgres v0.0.0-20210922062006-ff033d0e0e86 // indirect
+	github.com/lib/pq v1.10.3 // indirect
+	github.com/mattn/go-sqlite3 v1.14.7 // indirect
+)

@@ -7,18 +7,18 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/session"
-	"github.com/gofiber/storage/sqlite3"
+	psql "github.com/gofiber/storage/postgres"
 	"github.com/maxkruse/magnusopus/backend/globals"
 	"github.com/maxkruse/magnusopus/backend/routes"
 	"github.com/maxkruse/magnusopus/backend/routes/tournaments"
 	"github.com/maxkruse/magnusopus/backend/structs"
-	"github.com/maxkruse/magnusopus/backend/util"
+	"github.com/maxkruse/magnusopus/backend/utils"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	glog "gorm.io/gorm/logger"
 )
 
 func init() {
@@ -34,7 +34,6 @@ func init() {
 	globals.Logger.SetFormatter(&logrus.JSONFormatter{
 		TimestampFormat: "2006-01-02 15:04:05.1234",
 		PrettyPrint:     true,
-		DataKey:         "data",
 	})
 
 	// Get POSTGRES_ env variables
@@ -47,6 +46,7 @@ func init() {
 	err := error(nil)
 	globals.DBConn, err = gorm.Open(postgres.Open(globals.Config.POSTGRES_URL), &gorm.Config{
 		PrepareStmt: true,
+		Logger:      glog.Default.LogMode(glog.Info),
 	})
 	if err != nil {
 		globals.Logger.Fatal(err)
@@ -65,9 +65,14 @@ func init() {
 
 	globals.SessionStore = session.New(session.Config{
 		Expiration: time.Hour * 24 * 7 * 31, // 1 Month
-		Storage: sqlite3.New(sqlite3.Config{
+		Storage: psql.New(psql.Config{
 			Reset:    false,
-			Database: "/storage/sessions.db",
+			Host:     "session_store",
+			Port:     5432,
+			Username: globals.Config.POSTGRES_USER,
+			Password: globals.Config.POSTGRES_PASSWORD,
+			Database: globals.Config.POSTGRES_DB,
+			Table:    "sessions",
 		}),
 	})
 
@@ -76,14 +81,9 @@ func init() {
 }
 
 func checkSessionCookie(c *fiber.Ctx) error {
-	// check if session is valid
-	_, err := globals.SessionStore.Get(c)
-	if err != nil {
-		globals.Logger.WithFields(logrus.Fields{"error": err}).Error("Session error")
-		return err
-	}
+	defer utils.TimeTrack(time.Now(), "checkSessionCookie")
 
-	user, err := util.GetSelf(c)
+	user, err := utils.GetSelf(c)
 
 	if err != nil {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
@@ -99,8 +99,7 @@ func checkSessionCookie(c *fiber.Ctx) error {
 
 func main() {
 	app := fiber.New(fiber.Config{
-		Prefork:      false,           // true = multithreaded, false = singlethreaded
-		WriteTimeout: time.Second * 5, // 5 seconds to send a response. In cases we lag, we dont want them to wait forever
+		AppName: "Magnusopus Backend",
 	})
 
 	// use middlewares
@@ -108,11 +107,6 @@ func main() {
 		TimeFormat: "2006-01-02 15:04:05.1234",
 		TimeZone:   "UTC",
 	}))
-	app.Use(compress.New(
-		compress.Config{
-			Level: compress.LevelBestCompression,
-		},
-	))
 
 	// oauth routes
 	oauth := app.Group("/oauth")

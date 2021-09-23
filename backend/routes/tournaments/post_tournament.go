@@ -7,7 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/maxkruse/magnusopus/backend/globals"
 	"github.com/maxkruse/magnusopus/backend/structs"
-	"github.com/maxkruse/magnusopus/backend/util"
+	"github.com/maxkruse/magnusopus/backend/utils"
 )
 
 func validTournament(t structs.Tournament) error {
@@ -38,6 +38,7 @@ func validTournament(t structs.Tournament) error {
 }
 
 func PostTournament(c *fiber.Ctx) error {
+	defer utils.TimeTrack(time.Now(), "PostTournament")
 	c.Accepts("application/json")
 	t := structs.Tournament{}
 
@@ -77,7 +78,7 @@ func PostTournament(c *fiber.Ctx) error {
 
 	// TODO: Add current user as tournament staff and owner
 
-	me, err := util.GetSelf(c)
+	me, err := utils.GetSelf(c)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error":   err.Error(),

@@ -1,11 +1,14 @@
-package util
+package utils
 
 import (
+	"time"
+
 	"github.com/maxkruse/magnusopus/backend/globals"
 	"github.com/maxkruse/magnusopus/backend/structs"
 )
 
 func checkToken(bearer string) bool {
+	defer TimeTrack(time.Now(), "checkToken")
 	// check if token is in database
 	user := structs.User{}
 	sess := structs.Session{SessionToken: bearer}
@@ -22,6 +25,7 @@ func checkToken(bearer string) bool {
 }
 
 func GetUserFromSession(sessionToken string) (structs.User, error) {
+	defer TimeTrack(time.Now(), "GetUserFromSession")
 	user := structs.User{}
 	sess := structs.Session{SessionToken: sessionToken}
 	localDB := globals.DBConn

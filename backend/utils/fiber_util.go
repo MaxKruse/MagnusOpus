@@ -1,7 +1,8 @@
-package util
+package utils
 
 import (
 	"strconv"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/maxkruse/magnusopus/backend/globals"
@@ -9,6 +10,7 @@ import (
 )
 
 func GetRequestFilter(c *fiber.Ctx) structs.RequestFilter {
+	defer TimeTrack(time.Now(), "GetRequestFilter")
 	limit := c.Query("limit", "50")
 	offset := c.Query("offset", "0")
 
@@ -30,6 +32,7 @@ func GetRequestFilter(c *fiber.Ctx) structs.RequestFilter {
 }
 
 func CheckAuth(c *fiber.Ctx) (string, error) {
+	defer TimeTrack(time.Now(), "CheckAuth")
 	sess, err := globals.SessionStore.Get(c)
 	if err != nil {
 		return "", err
@@ -50,14 +53,11 @@ func CheckAuth(c *fiber.Ctx) (string, error) {
 		return "", fiber.ErrUnauthorized
 	}
 
-	if err := sess.Save(); err != nil {
-		return "", err
-	}
-
 	return token, nil
 }
 
 func GetSelf(c *fiber.Ctx) (structs.User, error) {
+	defer TimeTrack(time.Now(), "GetSelf")
 	token, err := CheckAuth(c)
 	if err != nil {
 		return structs.User{}, err
