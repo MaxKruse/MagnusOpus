@@ -8,6 +8,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/gofiber/fiber/v2/middleware/session"
 	psql "github.com/gofiber/storage/postgres"
 	"github.com/maxkruse/magnusopus/backend/globals"
@@ -117,6 +118,9 @@ func main() {
 	oauth.Get("/ripple", routes.GetOAuthRipple)
 
 	api := app.Group("/api")
+
+	// Status Page
+	app.Get("/status", monitor.New())
 
 	// use custom middleware for the entire api
 	api.Use(checkSessionCookie)
