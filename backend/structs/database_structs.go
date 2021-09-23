@@ -15,8 +15,8 @@ type Session struct {
 
 type User struct {
 	JsonModel
-	RippleId  int     `json:"ripple_id ,omitempty"`
-	Username  string  `json:"username ,omitempty"`
+	RippleId  int     `json:"ripple_id ,omitempty" gorm:"unique"`
+	Username  string  `json:"username ,omitempty" gorm:"unique"`
 	Session   Session `json:"session ,omitempty"`
 	SessionId uint    `json:"-"`
 }
@@ -39,9 +39,9 @@ type Staff struct {
 
 type Tournament struct {
 	JsonModel
-	Name         string    `json:"name,omitempty"`
+	Name         string    `json:"name,omitempty" gorm:"unique"`
 	Description  string    `json:"description,omitempty"`
-	DownloadPath string    `json:"file,omitempty"`
+	DownloadPath string    `json:"download_path,omitempty"`
 	StartTime    time.Time `json:"start_time,omitempty"`
 	EndTime      time.Time `json:"end_time,omitempty"`
 	Rounds       []Round   `json:"rounds,omitempty"`

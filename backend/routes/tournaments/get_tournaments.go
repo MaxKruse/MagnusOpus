@@ -10,8 +10,9 @@ import (
 func GetTournaments(c *fiber.Ctx) error {
 	tournaments := []*structs.Tournament{}
 	filter := util.GetRequestFilter(c)
+	localDB := globals.DBConn
 
-	globals.DBConn.Preload("Staffs").Limit(filter.Limit).Offset(filter.Offset).Find(&tournaments)
+	localDB.Preload("Staffs").Limit(filter.Limit).Offset(filter.Offset).Find(&tournaments)
 
 	return c.Status(fiber.StatusOK).JSON(tournaments)
 }

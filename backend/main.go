@@ -8,7 +8,6 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
-	"github.com/gofiber/fiber/v2/middleware/etag"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/gofiber/storage/sqlite3"
@@ -20,7 +19,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	glog "gorm.io/gorm/logger"
 )
 
 func init() {
@@ -49,19 +47,20 @@ func init() {
 	err := error(nil)
 	globals.DBConn, err = gorm.Open(postgres.Open(globals.Config.POSTGRES_URL), &gorm.Config{
 		PrepareStmt: true,
-		Logger:      glog.Default.LogMode(glog.Info),
 	})
 	if err != nil {
 		globals.Logger.Fatal(err)
 		os.Exit(1)
 	}
 	globals.Logger.Debug("Connected to database")
+	localDB := globals.DBConn
 
 	// Migrate Tables
-	globals.DBConn.AutoMigrate(&structs.User{})
-	globals.DBConn.AutoMigrate(&structs.Session{})
-	globals.DBConn.AutoMigrate(&structs.Tournament{})
-	globals.DBConn.AutoMigrate(&structs.Round{})
+	localDB.AutoMigrate(&structs.User{})
+	localDB.AutoMigrate(&structs.Session{})
+	localDB.AutoMigrate(&structs.Tournament{})
+	localDB.AutoMigrate(&structs.Staff{})
+	localDB.AutoMigrate(&structs.Round{})
 	globals.Logger.Debug("Migrated")
 
 	globals.SessionStore = session.New(session.Config{
@@ -114,7 +113,6 @@ func main() {
 			Level: compress.LevelBestCompression,
 		},
 	))
-	app.Use(etag.New())
 
 	// oauth routes
 	oauth := app.Group("/oauth")

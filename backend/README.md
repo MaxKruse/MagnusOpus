@@ -144,6 +144,7 @@ If you're not an admin, you won't be able to access these endpoints. If you beli
       - bancho_id: Bancho id of the staff member
     - role: Role of the staff member
       - Valid roles:
+        - owner (delete tournament, + everything else)
         - admin (full edits)
         - mod (rounds)
         - judge (judge maps)

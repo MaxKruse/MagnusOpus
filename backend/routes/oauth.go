@@ -92,8 +92,9 @@ func GetOAuthRipple(c *fiber.Ctx) error {
 
 	// Save user
 	user := structs.User{}
-	globals.DBConn.Preload("Session").First(&user, "ripple_id = ?", rippleResp.UserId).Debug()
 
+	localDB := globals.DBConn
+	localDB.Preload("Session").First(&user, "ripple_id = ?", rippleResp.UserId)
 	globals.Logger.WithField("user", user).Info("Saving user")
 	user.RippleId = rippleResp.UserId
 	user.Username = rippleResp.Username
@@ -101,8 +102,8 @@ func GetOAuthRipple(c *fiber.Ctx) error {
 
 	globals.Logger.WithField("user", user).Info("Saving user")
 
-	globals.DBConn.Debug().Save(&user)
-	globals.DBConn.Debug().Save(&user.Session)
+	localDB.Save(&user)
+	localDB.Save(&user.Session)
 
 	// Save session
 	if err := sess.Save(); err != nil {
