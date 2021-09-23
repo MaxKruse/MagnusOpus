@@ -10,7 +10,7 @@ func GetTournament(c *fiber.Ctx) error {
 	tournament := structs.Tournament{}
 	localDB := globals.DBConn
 
-	err := localDB.Preload("User").Preload("Staff").Preload("Round").First(&tournament, c.Params("id")).Error
+	err := localDB.Preload("Staffs").Preload("Rounds").First(&tournament, c.Params("id")).Error
 
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{})

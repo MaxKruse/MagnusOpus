@@ -11,6 +11,7 @@ import (
 )
 
 func validTournament(t structs.Tournament) error {
+	defer utils.TimeTrack(time.Now(), "validTournament")
 
 	if t.Name == "" {
 		return errors.New("name is required")
@@ -27,18 +28,45 @@ func validTournament(t structs.Tournament) error {
 	zeroTime := time.Time{}
 
 	if t.StartTime == zeroTime {
-		return errors.New("start_time is required")
+		return errors.New("start_time is required (ISO 8601) (RFC 3339)")
 	}
 
 	if t.EndTime == zeroTime {
-		return errors.New("end_time is required")
+		return errors.New("end_time is required (ISO 8601) (RFC 3339)")
+	}
+
+	// Check if the time is in the future
+	if t.StartTime.Before(time.Now()) {
+		return errors.New("start_time must be in the future")
+	}
+
+	if t.EndTime.Before(time.Now()) {
+		return errors.New("end_time must be in the future")
+	}
+
+	// check if end_time is at least 3 days after start_time
+	if t.EndTime.Sub(t.StartTime) < (3 * 24 * time.Hour) {
+		return errors.New("end_time must be at least 3 days after start_time")
+	}
+
+	localDB := globals.DBConn
+	res := structs.Tournament{}
+	localDB.Where("name = ?", t.Name).First(&res)
+
+	if res.ID != 0 {
+		return errors.New("name must be unique")
 	}
 
 	return nil
 }
 
 func PostTournament(c *fiber.Ctx) error {
-	defer utils.TimeTrack(time.Now(), "PostTournament")
+	if !utils.IsSuperadmin(c) {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error":   "Unauthorized",
+			"success": false,
+		})
+	}
 	c.Accepts("application/json")
 	t := structs.Tournament{}
 
@@ -65,19 +93,6 @@ func PostTournament(c *fiber.Ctx) error {
 	t.Rounds = nil
 	t.Staffs = nil
 
-	// TODO: Check if tournament exists
-	localDB := globals.DBConn
-	err = localDB.Where("name = ?", t.Name).Error
-
-	if err != nil {
-		return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{
-			"error":   err.Error(),
-			"success": false,
-		})
-	}
-
-	// TODO: Add current user as tournament staff and owner
-
 	me, err := utils.GetSelf(c)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -85,14 +100,14 @@ func PostTournament(c *fiber.Ctx) error {
 			"success": false,
 		})
 	}
+
 	staffMember := structs.Staff{
 		UserId: me.ID,
 		Role:   "owner",
 	}
-
 	t.Staffs = append(t.Staffs, staffMember)
 
-	// TODO: Save tournament
+	localDB := globals.DBConn
 	err = localDB.Save(&t).Error
 
 	if err != nil {
