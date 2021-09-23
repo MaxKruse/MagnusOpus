@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    image: albedo
+    restart: unless-stopped
+
+    volumes: 
+      - ./backend/storage:/storage
+    
+    env_file: 
+      - postgres.env
+      - backend/backend.env
+
+    depends_on: 
+      - database

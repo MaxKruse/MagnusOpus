@@ -30,10 +30,7 @@ services:
     restart: unless-stopped
 
     volumes: 
-      - ./backend:/app
       - ./backend/storage:/storage
-    
-    command: air
     
     env_file: 
       - postgres.env
@@ -51,6 +48,13 @@ services:
 
     ports: 
       - "5432:5432"
+
+  session_store:
+    image: postgres:13-alpine
+    restart: unless-stopped
+
+    env_file: 
+      - postgres.env
 
   caddy:
     image: caddy:alpine
