@@ -71,3 +71,21 @@ func GetSelf(c *fiber.Ctx) (structs.User, error) {
 
 	return user, nil
 }
+
+func IsSuperadmin(c *fiber.Ctx) bool {
+	defer TimeTrack(time.Now(), "IsSuperadmin")
+	self, err := GetSelf(c)
+
+	if err != nil {
+		return false
+	}
+
+	// check if user.RippleId is in globals.Superadmins
+	for _, superadmin := range globals.AllowedSuperadmin {
+		if superadmin == self.RippleId {
+			return true
+		}
+	}
+
+	return false
+}

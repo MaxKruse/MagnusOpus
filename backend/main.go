@@ -22,6 +22,7 @@ import (
 )
 
 func init() {
+	defer utils.TimeTrack(time.Now(), "init")
 	// Setup global state before main
 
 	// Create a new instance of the logger
@@ -75,6 +76,9 @@ func init() {
 			Table:    "sessions",
 		}),
 	})
+
+	// Fill in the Ripple UserId for superadmins. Only those can create tournaments
+	globals.AllowedSuperadmin = []int{1955}
 
 	globals.Logger.Info("Starting Magnusopus backend")
 	globals.Logger.WithFields(logrus.Fields{"config": globals.Config}).Debug("Config")

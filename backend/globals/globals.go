@@ -12,4 +12,6 @@ var (
 	Config       structs.Config
 	DBConn       *gorm.DB
 	SessionStore *session.Store
+
+	AllowedSuperadmin []int
 )
