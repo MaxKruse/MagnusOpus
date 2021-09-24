@@ -5,22 +5,29 @@ import (
 	"github.com/maxkruse/magnusopus/backend/globals"
 	"github.com/maxkruse/magnusopus/backend/structs"
 	"github.com/maxkruse/magnusopus/backend/utils"
-	"github.com/sirupsen/logrus"
 )
 
 func GetTournaments(c *fiber.Ctx) error {
-	visible_tournaments := []*structs.Tournament{}
-	staff_tournaments := []*structs.Tournament{}
+	tournaments := []*structs.Tournament{}
+	results := tournaments
 	localDB := globals.DBConn
 	self, _ := utils.GetSelf(c)
 
-	localDB.Where("visible = ?", true).Find(&visible_tournaments)
-	localDB.Joins("LEFT JOIN staffs ON staffs.tournament_id = tournaments.id JOIN users ON users.id = staffs.user_id").Where("users.ripple_id = ?", self.RippleId).Find(&staff_tournaments)
+	localDB.Preload("Staffs").Find(&tournaments)
 
-	globals.Logger.WithFields(logrus.Fields{
-		"visible_tournaments": visible_tournaments,
-		"staff_tournaments":   staff_tournaments,
-	}).Info("GetTournaments")
+	for _, tournament := range tournaments {
+		canView := tournament.Visible
+		for _, staff := range tournament.Staffs {
+			if staff.UserId == self.ID {
+				canView = true
+			}
+		}
 
-	return c.Status(fiber.StatusOK).JSON(append(visible_tournaments, staff_tournaments...))
+		if canView {
+			tournament.Staffs = nil
+			results = append(results, tournament)
+		}
+	}
+
+	return c.Status(fiber.StatusOK).JSON(results)
 }

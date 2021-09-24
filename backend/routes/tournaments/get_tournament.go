@@ -13,10 +13,22 @@ func GetTournament(c *fiber.Ctx) error {
 
 	self, _ := utils.GetSelf(c)
 
-	err := localDB.Joins("JOIN staffs ON staffs.tournament_id = tournaments.id JOIN users ON users.id = staffs.user_id").Preload("Staffs").Preload("Rounds").Where("visible = ?", true).Or("users.ripple_id = ?", self.RippleId).First(&tournament, c.Params("id")).Error
+	// check if we are a staff member
+	err := localDB.Preload("Staffs").Preload("Rounds").First(&tournament, c.Params("id")).Error
+
+	canView := tournament.Visible
+	for _, staff := range tournament.Staffs {
+		if staff.UserId == self.ID {
+			canView = true
+		}
+	}
 
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{})
+	}
+
+	if !canView {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{})
 	}
 
 	return c.Status(fiber.StatusOK).JSON(tournament)
