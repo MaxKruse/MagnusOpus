@@ -51,7 +51,7 @@ func validTournament(t structs.Tournament) error {
 
 	localDB := globals.DBConn
 	res := structs.Tournament{}
-	localDB.Where("name = ?", t.Name).First(&res)
+	localDB.Where(t).First(&res)
 
 	if res.ID != 0 {
 		return errors.New("name must be unique")
