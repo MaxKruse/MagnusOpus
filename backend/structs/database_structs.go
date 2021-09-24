@@ -46,6 +46,7 @@ type Tournament struct {
 	EndTime      time.Time `json:"end_time,omitempty"`
 	Rounds       []Round   `json:"rounds,omitempty"`
 	Staffs       []Staff   `json:"staffs,omitempty"`
+	Visible      bool      `json:"-"`
 }
 
 type JsonModel struct {

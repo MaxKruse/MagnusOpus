@@ -9,10 +9,10 @@ import (
 
 func GetTournaments(c *fiber.Ctx) error {
 	tournaments := []*structs.Tournament{}
-	filter := utils.GetRequestFilter(c)
 	localDB := globals.DBConn
+	self, _ := utils.GetSelf(c)
 
-	localDB.Limit(filter.Limit).Offset(filter.Offset).Find(&tournaments)
+	localDB.Joins("JOIN staffs ON staffs.tournament_id = tournaments.id JOIN users ON users.id = staffs.user_id").Preload("Staffs").Preload("Rounds").Where("visible = ?", true).Or("users.ripple_id = ?", self.RippleId).Find(&tournaments)
 
 	return c.Status(fiber.StatusOK).JSON(tournaments)
 }
