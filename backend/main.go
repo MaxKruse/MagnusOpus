@@ -110,7 +110,7 @@ func checkSessionCookie(c *fiber.Ctx) error {
 
 func main() {
 	app := fiber.New(fiber.Config{
-		AppName: "Magnusopus Backend",
+		AppName: "MagnusOpus Backend",
 	})
 
 	// use middlewares
