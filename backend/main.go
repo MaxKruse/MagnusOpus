@@ -9,6 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/middleware/session"
 	psql "github.com/gofiber/storage/postgres"
 	"github.com/maxkruse/magnusopus/backend/globals"
@@ -88,6 +89,11 @@ func init() {
 func checkSessionCookie(c *fiber.Ctx) error {
 	defer utils.TimeTrack(time.Now(), "checkSessionCookie")
 
+	// dont apply to /api/v1/tournaments
+	if c.Path() == "/api/v1/tournaments" && c.Method() == "GET" {
+		return c.Next()
+	}
+
 	user, err := utils.GetSelf(c)
 
 	if err != nil {
@@ -111,6 +117,10 @@ func main() {
 	app.Use(logger.New(logger.Config{
 		TimeFormat: "2006-01-02 15:04:05.1234",
 		TimeZone:   "UTC",
+	}))
+
+	app.Use(recover.New(recover.Config{
+		EnableStackTrace: true,
 	}))
 
 	// oauth routes
