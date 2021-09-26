@@ -45,7 +45,7 @@ type Tournament struct {
 	StartTime    time.Time `json:"start_time,omitempty"`
 	EndTime      time.Time `json:"end_time,omitempty"`
 	Rounds       []Round   `json:"rounds,omitempty"`
-	Staffs       []Staff   `json:"staffs,omitempty"`
+	Staffs       []Staff   `json:"staffs,omitempty" gorm:"many2many:tournament_staff"`
 	Visible      bool      `json:"-"`
 }
 
