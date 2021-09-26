@@ -145,7 +145,17 @@ func main() {
 	v1.Get("/tournaments", tournaments.GetTournaments)
 	v1.Get("/tournaments/:id", tournaments.GetTournament)
 
+	v1.Put("/tournaments/:id", tournaments.PutTournament)
+
 	v1.Post("/tournaments", tournaments.PostTournament)
+
+	// Match anything else
+	app.Use(func(c *fiber.Ctx) error {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error":   "Route Not Found",
+			"success": false,
+		})
+	})
 
 	globals.Logger.Fatal(app.Listen(":5000"))
 }

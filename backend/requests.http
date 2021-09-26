@@ -18,6 +18,12 @@ Cookie: session_id={{session_id}}
 
 ###
 
+# Get Tournaments
+GET https://localhost/api/v1/tournaments/9
+Cookie: session_id={{session_id}}
+
+###
+
 # Post Tournament
 POST https://localhost/api/v1/tournaments
 Cookie: session_id={{session_id}}
@@ -26,6 +32,21 @@ content-type: application/json
 {
     "name":"Tournament 1",
     "description":"This is a tournament",
+    "download_path":"https://google.com",
+    "start_time":"2021-10-02T15:00:00Z",
+    "end_time":"2021-10-10T15:00:00Z"
+}
+
+###
+
+# Update Tournament
+PUT https://localhost/api/v1/tournaments/9
+Cookie: session_id={{session_id}}
+content-type: application/json
+
+{
+    "name":"Tournament Alloha 6",
+    "description":"This is an updated tournament",
     "download_path":"https://google.com",
     "start_time":"2021-10-02T15:00:00Z",
     "end_time":"2021-10-10T15:00:00Z"
