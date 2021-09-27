@@ -15,10 +15,10 @@ type Session struct {
 
 type User struct {
 	JsonModel
-	RippleId  int     `json:"ripple_id ,omitempty" gorm:"unique"`
-	Username  string  `json:"username ,omitempty" gorm:"unique"`
-	Session   Session `json:"session ,omitempty"`
-	SessionId uint    `json:"-"`
+	RippleId  int      `json:"ripple_id ,omitempty" gorm:"unique"`
+	Username  string   `json:"username ,omitempty" gorm:"unique"`
+	Session   *Session `json:"session ,omitempty"`
+	SessionId uint     `json:"-"`
 }
 
 type Round struct {
@@ -33,7 +33,8 @@ type Round struct {
 type Staff struct {
 	JsonModel
 	TournamentId uint   `json:"tournament_id,omitempty"`
-	UserId       uint   `json:"user_id"`
+	User         User   `json:"user,omitempty"`
+	UserId       uint   `json:"-"`
 	Role         string `json:"role"`
 }
 

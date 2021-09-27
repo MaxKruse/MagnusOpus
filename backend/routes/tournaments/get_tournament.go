@@ -14,7 +14,7 @@ func GetTournament(c *fiber.Ctx) error {
 	self, _ := utils.GetSelf(c)
 
 	// check if we are a staff member
-	err := localDB.Preload("Staffs").Preload("Rounds").First(&tournament, c.Params("id")).Error
+	err := localDB.Preload("Staffs.User").Preload("Rounds").First(&tournament, c.Params("id")).Error
 
 	canView := tournament.Visible
 	for _, staff := range tournament.Staffs {
