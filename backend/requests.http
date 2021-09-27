@@ -18,7 +18,7 @@ Authorization: Bearer {{session_id}}
 
 ###
 
-# Get Tournaments
+# Get Tournament
 GET https://localhost/api/v1/tournaments/2
 Cookie: session_id={{session_id}}
 
