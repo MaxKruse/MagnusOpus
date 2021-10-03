@@ -15,4 +15,4 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker build ./backend/ --file Dockerfile.prod --tag albedo:$(date +%s)
+      run: docker build ./backend/ --file ./backend/Dockerfile.prod --tag albedo:$(date +%s)
