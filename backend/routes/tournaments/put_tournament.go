@@ -1,6 +1,8 @@
 package tournaments
 
 import (
+	"strconv"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/maxkruse/magnusopus/backend/globals"
 	"github.com/maxkruse/magnusopus/backend/structs"
@@ -8,9 +10,22 @@ import (
 )
 
 func PutTournament(c *fiber.Ctx) error {
-	if !utils.IsSuperadmin(c) {
+	self, _ := utils.GetSelf(c)
+	tournament_id64, err := strconv.ParseUint(c.Params("id"), 10, 64)
+	tournament_id := uint(tournament_id64)
+
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"Message": "Invalid tournament id",
+			"success": false,
+		})
+	}
+
+	editErr := utils.CanEditTournament(self.ID, tournament_id)
+
+	if editErr != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error":   "Unauthorized",
+			"error":   editErr.Error(),
 			"success": false,
 		})
 	}
@@ -18,7 +33,7 @@ func PutTournament(c *fiber.Ctx) error {
 	t := structs.Tournament{}
 
 	// Decode body
-	err := c.BodyParser(&t)
+	err = c.BodyParser(&t)
 
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -38,7 +53,7 @@ func PutTournament(c *fiber.Ctx) error {
 
 	// get tournament from id in db
 	res := structs.Tournament{}
-	err = globals.DBConn.First(&res, c.Params("id")).Error
+	err = globals.DBConn.First(&res, tournament_id).Error
 
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
