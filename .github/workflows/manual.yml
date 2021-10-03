@@ -1,0 +1,25 @@
+name: Release
+# This workflow is triggered manually
+on:
+  workflow_dispatch:
+    inputs:
+      version_bump_type:
+        description: 'Version Bump Type (major, minor, patch)'
+        required: true
+        default: 'patch'
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    container: golang
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Bump version
+        id: bump_version
+        uses: packagrio/action-bumpr-go@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          version_bump_type: ${{ github.event.inputs.version_bump_type }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
