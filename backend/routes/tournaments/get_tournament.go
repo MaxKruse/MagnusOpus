@@ -1,6 +1,7 @@
 package tournaments
 
 import (
+	"log"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -14,7 +15,10 @@ func GetTournament(c *fiber.Ctx) error {
 	self, _ := utils.GetSelf(c)
 
 	// check if we are a staff member
-	id, err := strconv.ParseUint(c.Params("id"), 10, 32)
+	log.Println(c.Params("id"))
+	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
+	log.Println(id)
+	log.Println(uint(id))
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "invalid tournament id",
@@ -28,7 +32,7 @@ func GetTournament(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{})
 	}
 
-	canView := utils.CanViewTournament(tournament.ID, self.ID)
+	canView := utils.CanViewTournament(self.ID, tournament.ID)
 
 	if canView != nil {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{

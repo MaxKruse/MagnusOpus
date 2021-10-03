@@ -14,6 +14,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/session"
 	psql "github.com/gofiber/storage/postgres"
 	"github.com/maxkruse/magnusopus/backend/globals"
+	"github.com/maxkruse/magnusopus/backend/performance"
 	"github.com/maxkruse/magnusopus/backend/routes"
 	"github.com/maxkruse/magnusopus/backend/routes/tournaments"
 	"github.com/maxkruse/magnusopus/backend/structs"
@@ -25,7 +26,7 @@ import (
 )
 
 func init() {
-	defer utils.TimeTrack(time.Now(), "init")
+	defer performance.TimeTrack(time.Now(), "init")
 	// Setup global state before main
 
 	// Create a new instance of the logger
@@ -88,8 +89,6 @@ func init() {
 }
 
 func checkSessionCookie(c *fiber.Ctx) error {
-	defer utils.TimeTrack(time.Now(), "checkSessionCookie")
-
 	// dont apply to /api/v1/tournaments
 	if c.Path() == "/api/v1/tournaments" && c.Method() == "GET" {
 		return c.Next()
@@ -151,6 +150,7 @@ func main() {
 	v1.Put("/tournaments/:id", tournaments.PutTournament)
 
 	v1.Post("/tournaments", tournaments.PostTournament)
+	v1.Post("/tournaments/:id/rounds", tournaments.AddRound)
 
 	// Match anything else
 	app.Use(func(c *fiber.Ctx) error {

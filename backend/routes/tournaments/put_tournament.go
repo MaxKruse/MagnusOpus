@@ -42,8 +42,8 @@ func PutTournament(c *fiber.Ctx) error {
 		})
 	}
 
-	// TODO: Validate tournament
-	err = validTournament(t)
+	localDB := globals.DBConn
+	err = t.ValidTournament(localDB)
 	if err != nil {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{
 			"error":   err.Error(),
@@ -53,7 +53,7 @@ func PutTournament(c *fiber.Ctx) error {
 
 	// get tournament from id in db
 	res := structs.Tournament{}
-	err = globals.DBConn.First(&res, tournament_id).Error
+	err = localDB.First(&res, tournament_id).Error
 
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -74,7 +74,6 @@ func PutTournament(c *fiber.Ctx) error {
 
 	globals.Logger.WithField("tournament", update).Info("Updating tournament")
 
-	localDB := globals.DBConn
 	err = localDB.Where(update.ID).UpdateColumns(&t).Error
 
 	if err != nil {

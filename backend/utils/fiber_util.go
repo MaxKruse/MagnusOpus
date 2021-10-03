@@ -6,11 +6,12 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/maxkruse/magnusopus/backend/globals"
+	"github.com/maxkruse/magnusopus/backend/performance"
 	"github.com/maxkruse/magnusopus/backend/structs"
 )
 
 func GetRequestFilter(c *fiber.Ctx) structs.RequestFilter {
-	defer TimeTrack(time.Now(), "GetRequestFilter")
+	defer performance.TimeTrack(time.Now(), "GetRequestFilter")
 	limit := c.Query("limit", "50")
 	offset := c.Query("offset", "0")
 
@@ -32,7 +33,6 @@ func GetRequestFilter(c *fiber.Ctx) structs.RequestFilter {
 }
 
 func CheckAuth(c *fiber.Ctx) (string, error) {
-	defer TimeTrack(time.Now(), "CheckAuth")
 	sess, err := globals.SessionStore.Get(c)
 	if err != nil {
 		return "", err
@@ -57,7 +57,6 @@ func CheckAuth(c *fiber.Ctx) (string, error) {
 }
 
 func GetSelf(c *fiber.Ctx) (structs.User, error) {
-	defer TimeTrack(time.Now(), "GetSelf")
 	token, err := CheckAuth(c)
 	if err != nil {
 		return structs.User{}, err
@@ -73,7 +72,6 @@ func GetSelf(c *fiber.Ctx) (structs.User, error) {
 }
 
 func IsSuperadmin(c *fiber.Ctx) bool {
-	defer TimeTrack(time.Now(), "IsSuperadmin")
 	self, err := GetSelf(c)
 
 	if err != nil {

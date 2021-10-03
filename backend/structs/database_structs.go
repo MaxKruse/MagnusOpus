@@ -26,6 +26,8 @@ type Round struct {
 	TournamentId int       `json:"tournament_id,omitempty"`
 	Name         string    `json:"name,omitempty"`
 	Description  string    `json:"description,omitempty"`
+	Active       bool      `json:"active,omitempty"`
+	DownloadPath string    `json:"download_path,omitempty"`
 	StartTime    time.Time `json:"start_time,omitempty"`
 	EndTime      time.Time `json:"end_time,omitempty"`
 }
@@ -40,14 +42,13 @@ type Staff struct {
 
 type Tournament struct {
 	JsonModel
-	Name         string    `json:"name,omitempty" gorm:"unique"`
-	Description  string    `json:"description,omitempty"`
-	DownloadPath string    `json:"download_path,omitempty"`
-	StartTime    time.Time `json:"start_time,omitempty"`
-	EndTime      time.Time `json:"end_time,omitempty"`
-	Rounds       []Round   `json:"rounds,omitempty"`
-	Staffs       []Staff   `json:"staffs,omitempty" gorm:"many2many:tournament_staff"`
-	Visible      bool      `json:"-"`
+	Name        string    `json:"name,omitempty" gorm:"unique"`
+	Description string    `json:"description,omitempty"`
+	StartTime   time.Time `json:"start_time,omitempty"`
+	EndTime     time.Time `json:"end_time,omitempty"`
+	Rounds      []Round   `json:"rounds,omitempty"`
+	Staffs      []Staff   `json:"staffs,omitempty" gorm:"many2many:tournament_staff"`
+	Visible     bool      `json:"-"`
 }
 
 type JsonModel struct {

@@ -11,8 +11,10 @@ import (
 func GetTournament(tournament_id uint) (structs.Tournament, error) {
 	localDB := globals.DBConn
 
+	log.Println("Getting Tournament:", tournament_id)
+
 	t := structs.Tournament{}
-	err := localDB.Preload("Staffs.User").First(&t, tournament_id).Error
+	err := localDB.Preload("Staffs.User").Preload("Rounds").First(&t, tournament_id).Error
 	if err != nil {
 		return t, err
 	}
