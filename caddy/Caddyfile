@@ -13,6 +13,10 @@ localhost {
 		reverse_proxy http://backend:5000
 	}
 
+	handle /debug* {
+		reverse_proxy http://backend:5000
+	}
+
 	handle /status* {
 		reverse_proxy http://backend:5000
 	}
