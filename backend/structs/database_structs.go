@@ -26,7 +26,7 @@ type Round struct {
 	TournamentId int       `json:"tournament_id,omitempty"`
 	Name         string    `json:"name,omitempty"`
 	Description  string    `json:"description,omitempty"`
-	Active       bool      `json:"active,omitempty"`
+	Active       bool      `json:"active"`
 	DownloadPath string    `json:"download_path,omitempty"`
 	StartTime    time.Time `json:"start_time,omitempty"`
 	EndTime      time.Time `json:"end_time,omitempty"`

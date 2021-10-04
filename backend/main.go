@@ -110,7 +110,8 @@ func checkSessionCookie(c *fiber.Ctx) error {
 
 func main() {
 	app := fiber.New(fiber.Config{
-		AppName: "MagnusOpus Backend",
+		AppName:       "MagnusOpus Backend",
+		StrictRouting: true,
 	})
 
 	// use middlewares
@@ -144,13 +145,15 @@ func main() {
 	v1.Get("/self", routes.Me)
 
 	// Tournament
-	v1.Get("/tournaments", tournaments.GetTournaments)
-	v1.Get("/tournaments/:id", tournaments.GetTournament)
+	tournamentsGroup := v1.Group("/tournaments")
+	tournamentsGroup.Get("/", tournaments.GetTournaments)
+	tournamentsGroup.Get("/:id", tournaments.GetTournament)
 
-	v1.Put("/tournaments/:id", tournaments.PutTournament)
+	tournamentsGroup.Put("/:id", tournaments.PutTournament)
 
-	v1.Post("/tournaments", tournaments.PostTournament)
-	v1.Post("/tournaments/:id/rounds", tournaments.AddRound)
+	tournamentsGroup.Post("/", tournaments.PostTournament)
+	tournamentsGroup.Post("/:id/rounds", tournaments.AddRound)
+	tournamentsGroup.Post("/:id/rounds/activate/:name", tournaments.ActivateRound)
 
 	// Match anything else
 	app.Use(func(c *fiber.Ctx) error {

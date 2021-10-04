@@ -26,19 +26,31 @@ func (t *Tournament) ActivateRound(name string) error {
 
 	changed := false
 
-	for _, r := range t.Rounds {
+	for i, r := range t.Rounds {
 		// Deactivate all rounds
 		r.Active = false
 
 		// Only activate if the name matches
 		if strings.EqualFold(r.Name, name) {
-			r.Active = true
+			t.Rounds[i].Active = true
 			changed = true
 		}
 	}
 
 	if !changed {
 		return errors.New("activate round: no round with name " + name)
+	}
+
+	return nil
+}
+
+func (t Tournament) TournamentExists(localDB *gorm.DB) error {
+
+	res := Tournament{}
+	localDB.Where("name = ?", t.Name).First(&res)
+
+	if res.ID != 0 {
+		return errors.New("name must be unique")
 	}
 
 	return nil
@@ -77,8 +89,12 @@ func (t Tournament) ValidTournament(localDB *gorm.DB) error {
 		return errors.New("end_time must be at least 3 days after start_time")
 	}
 
-	res := Tournament{}
-	localDB.Where(t).First(&res)
+	return nil
+}
+
+func (t Round) RoundExist(localDB *gorm.DB) error {
+	res := Round{}
+	localDB.Where("name = ? OR tournament_id = ?", t.Name, t.TournamentId).First(&res)
 
 	if res.ID != 0 {
 		return errors.New("name must be unique")
@@ -122,13 +138,6 @@ func (t Round) ValidRound(localDB *gorm.DB) error {
 	// check if end_time is at least 3 days after start_time
 	if t.EndTime.Sub(t.StartTime) < (3 * 24 * time.Hour) {
 		return errors.New("end_time must be at least 3 days after start_time")
-	}
-
-	res := Round{}
-	localDB.Where(t).First(&res)
-
-	if res.ID != 0 {
-		return errors.New("name must be unique")
 	}
 
 	return nil

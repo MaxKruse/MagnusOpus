@@ -19,7 +19,7 @@ Authorization: Bearer {{session_id}}
 ###
 
 # Get Tournament
-GET https://localhost/api/v1/tournaments/14
+GET https://localhost/api/v1/tournaments/1
 Cookie: session_id={{session_id}}
 
 ###
@@ -40,7 +40,7 @@ content-type: application/json
 ###
 
 # Update Tournament
-PUT https://localhost/api/v1/tournaments/14
+PUT https://localhost/api/v1/tournaments/1
 Cookie: session_id={{session_id}}
 content-type: application/json
 
@@ -54,15 +54,22 @@ content-type: application/json
 
 ###
 
-# Post Tournament
-POST https://localhost/api/v1/tournaments/14/rounds
+# Post Round
+POST https://localhost/api/v1/tournaments/1/rounds
 Cookie: session_id={{session_id}}
 content-type: application/json
 
 {
-    "name":"Quarterfinals",
+    "name":"Semifinals",
     "description":"This is a tournament",
     "download_path":"https://google.com",
     "start_time":"2022-10-02T15:00:00Z",
     "end_time":"2022-10-10T15:00:00Z"
 }
+
+### 
+
+# Activate Round
+POST https://localhost/api/v1/tournaments/1/rounds/activate/Semifinals
+Cookie: session_id={{session_id}}
+content-type: application/json

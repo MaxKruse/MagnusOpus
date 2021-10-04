@@ -91,10 +91,15 @@ func GetOAuthRipple(c *fiber.Ctx) error {
 	}
 
 	// Save user
-	user := structs.User{}
+	var user structs.User
 
 	localDB := globals.DBConn
 	localDB.Preload("Session").First(&user, "ripple_id = ?", rippleResp.UserId)
+
+	if user.ID == 0 {
+		user.Session = &structs.Session{}
+	}
+
 	globals.Logger.WithField("user", user).Info("Saving user")
 	user.RippleId = rippleResp.UserId
 	user.Username = rippleResp.Username
