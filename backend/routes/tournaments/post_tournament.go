@@ -51,7 +51,7 @@ func PostTournament(c *fiber.Ctx) error {
 	}
 
 	staffMember := structs.Staff{
-		User: me,
+		User: &me,
 		Role: "owner",
 	}
 	t.Staffs = append(t.Staffs, staffMember)
@@ -67,7 +67,7 @@ func PostTournament(c *fiber.Ctx) error {
 
 	// Remove session from staff user to not display
 	for _, staff := range t.Staffs {
-		staff.User.Session = nil
+		staff.User.Sessions = nil
 	}
 
 	return c.Status(fiber.StatusOK).JSON(t)

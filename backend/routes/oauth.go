@@ -8,6 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/maxkruse/magnusopus/backend/globals"
 	"github.com/maxkruse/magnusopus/backend/structs"
+	"github.com/maxkruse/magnusopus/backend/utils"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 )
@@ -96,19 +97,14 @@ func GetOAuthRipple(c *fiber.Ctx) error {
 	localDB := globals.DBConn
 	localDB.Preload("Session").First(&user, "ripple_id = ?", rippleResp.UserId)
 
-	if user.ID == 0 {
-		user.Session = &structs.Session{}
-	}
-
 	globals.Logger.WithField("user", user).Info("Saving user")
 	user.RippleId = rippleResp.UserId
 	user.Username = rippleResp.Username
-	user.Session.SessionToken = sess.ID()
+	user.Sessions = append(user.Sessions, structs.Session{SessionToken: sess.ID()})
 
 	globals.Logger.WithField("user", user).Info("Saving user")
-
 	localDB.Save(&user)
-	localDB.Save(&user.Session)
+	globals.Logger.WithField("user", user).Infoln("Saved user")
 
 	// Save session
 	if err := sess.Save(); err != nil {
@@ -146,4 +142,35 @@ func getOauth(c *fiber.Ctx, oauthConfig *oauth2.Config, code string) (*oauth2.To
 	}
 
 	return token, nil
+}
+
+func Logout(c *fiber.Ctx) error {
+	sess, err := globals.SessionStore.Get(c)
+	if err != nil {
+		return err
+	}
+
+	self, err := utils.GetSelf(c)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"success": false,
+			"error":   err.Error(),
+		})
+	}
+
+	// Delete session for self
+	localDB := globals.DBConn
+	localDB.Delete(self.Sessions, "user_id = ? ", self.ID)
+
+	// Logout the user by invalidating the cookie
+	sess.Destroy()
+
+	if err := sess.Save(); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"success": false,
+			"error":   err.Error(),
+		})
+	}
+
+	return c.Redirect("/")
 }

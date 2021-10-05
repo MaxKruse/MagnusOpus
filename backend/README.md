@@ -23,7 +23,6 @@ Any specific types are in reference to golangs default types.
                 "round",
                 "round",
            ],
-           "current_round": "int",
            "staffs": [
                 "staff",
                 "staff",
@@ -40,7 +39,7 @@ Any specific types are in reference to golangs default types.
            "description": "string",
            "start_time": "time.Time",
            "end_time": "time.Time",
-           "file": "Downloadpath to file of this round",
+           "download_path": "Download path to file of this round",
         }
     ```
 
@@ -48,8 +47,8 @@ Any specific types are in reference to golangs default types.
     ```json
        {
            "id": "int",
-           "ripple_id": "int",
-           "bancho_id": "int",
+           "User": "User",
+           "UserID": "int",
            "role": "string",
        }
     ```
@@ -79,10 +78,10 @@ Any specific types are in reference to golangs default types.
 ### User Spec
 
 - [x] [GET] /oauth: Redirect user to oauth of the server, e.g. https://localhost/oauth/ripple redirects to ripple's oauth page
-  - Valid server: ripple, bancho
+  - Valid server: ripple
 
-- [ ] [GET] /oauth/{server}/logout: Logout user for the server
-  - Valid server: ripple, bancho
+- [x] [GET] /oauth/{server}/logout: Logout user for the server
+  - Valid server: ripple
 
 - [x] [GET] /api/v1/tournaments: Get all tournaments.
 

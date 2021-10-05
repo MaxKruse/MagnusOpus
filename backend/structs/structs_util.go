@@ -28,7 +28,7 @@ func (t *Tournament) ActivateRound(name string) error {
 
 	for i, r := range t.Rounds {
 		// Deactivate all rounds
-		r.Active = false
+		t.Rounds[i].Active = false
 
 		// Only activate if the name matches
 		if strings.EqualFold(r.Name, name) {

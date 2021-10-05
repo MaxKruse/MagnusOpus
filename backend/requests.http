@@ -30,7 +30,7 @@ Cookie: session_id={{session_id}}
 content-type: application/json
 
 {
-    "name":"Tournament 3",
+    "name":"Tournament 1",
     "description":"This is a tournament",
     "download_path":"https://google.com",
     "start_time":"2022-10-02T15:00:00Z",
@@ -45,7 +45,7 @@ Cookie: session_id={{session_id}}
 content-type: application/json
 
 {
-    "name":"Tournament Alloha 6",
+    "name":"Tournament 1",
     "description":"This is an updated tournament",
     "download_path":"https://google.com",
     "start_time":"2022-10-02T15:00:00Z",
@@ -60,7 +60,7 @@ Cookie: session_id={{session_id}}
 content-type: application/json
 
 {
-    "name":"Semifinals",
+    "name":"Grandfinals",
     "description":"This is a tournament",
     "download_path":"https://google.com",
     "start_time":"2022-10-02T15:00:00Z",
@@ -70,6 +70,10 @@ content-type: application/json
 ### 
 
 # Activate Round
-POST https://localhost/api/v1/tournaments/1/rounds/activate/Semifinals
+POST https://localhost/api/v1/tournaments/1/rounds/activate
 Cookie: session_id={{session_id}}
 content-type: application/json
+
+{
+    "Name": "Finals"
+}

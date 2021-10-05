@@ -6,36 +6,34 @@ import (
 )
 
 func checkToken(bearer string) bool {
-	// check if token is in database
-	user := structs.User{}
-	sess := structs.Session{SessionToken: bearer}
-	localDB := globals.DBConn
-
-	globals.Logger.WithField("sess", sess).Debug("Checking token from database")
-	localDB.Find(&sess, sess)
-	globals.Logger.WithField("sess", sess).Debug("Checking token from database")
-
-	// get user from sess
-	localDB.Preload("Session").First(&user, "session_id = ?", sess.ID)
-	globals.Logger.WithField("user", user).Debug("User found")
+	user, err := GetUserFromSession(bearer)
+	if err != nil {
+		return false
+	}
 	return user.ID != 0
 }
 
 func GetUserFromSession(sessionToken string) (structs.User, error) {
+	// check if token is in database
 	user := structs.User{}
 	sess := structs.Session{SessionToken: sessionToken}
 	localDB := globals.DBConn
 
-	err := localDB.First(&sess, sess).Error
-
+	err := localDB.Find(&sess, sess).Error
 	if err != nil {
-		return structs.User{}, err
+		return user, err
+	}
+	globals.Logger.WithField("sess", sess).Debug("Got session from token")
+
+	// get session from db
+	err = localDB.First(&sess, sess).Error
+	if err != nil {
+		return user, err
 	}
 
-	err = localDB.Preload("Session").First(&user, "session_id = ?", sess.ID).Error
-	if err != nil {
-		return structs.User{}, err
-	}
+	// get user from sess
+	localDB.Preload("Sessions").First(&user, sess.UserId)
+	globals.Logger.WithField("user", user).Debug("User found")
 
 	return user, nil
 }

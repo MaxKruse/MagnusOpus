@@ -129,6 +129,7 @@ func main() {
 	// oauth routes
 	oauth := app.Group("/oauth")
 	oauth.Get("/ripple", routes.GetOAuthRipple)
+	oauth.Get("/logout", routes.Logout)
 
 	api := app.Group("/api")
 
@@ -153,7 +154,7 @@ func main() {
 
 	tournamentsGroup.Post("/", tournaments.PostTournament)
 	tournamentsGroup.Post("/:id/rounds", tournaments.AddRound)
-	tournamentsGroup.Post("/:id/rounds/activate/:name", tournaments.ActivateRound)
+	tournamentsGroup.Post("/:id/rounds/activate", tournaments.ActivateRound)
 
 	// Match anything else
 	app.Use(func(c *fiber.Ctx) error {

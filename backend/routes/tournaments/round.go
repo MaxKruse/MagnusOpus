@@ -35,7 +35,13 @@ func ActivateRound(c *fiber.Ctx) error {
 		})
 	}
 
-	round := c.Params("name")
+	round := structs.Round{}
+	if err := c.BodyParser(&round); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   err.Error(),
+			"success": false,
+		})
+	}
 
 	t, err := utils.GetTournament(uint(tournamentIDUint))
 	if err != nil {
@@ -45,7 +51,7 @@ func ActivateRound(c *fiber.Ctx) error {
 		})
 	}
 
-	err = t.ActivateRound(round)
+	err = t.ActivateRound(round.Name)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   err.Error(),

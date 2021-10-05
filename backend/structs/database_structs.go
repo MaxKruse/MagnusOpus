@@ -8,6 +8,7 @@ import (
 
 type Session struct {
 	JsonModel
+	UserId       uint   `gorm:"not null" json:"-"`
 	SessionToken string `gorm:"type:text" json:",omitempty"`
 	AccessToken  string `gorm:"type:text" json:",omitempty"`
 	RefreshToken string `gorm:"type:text" json:",omitempty"`
@@ -15,16 +16,15 @@ type Session struct {
 
 type User struct {
 	JsonModel
-	RippleId  int      `json:"ripple_id ,omitempty" gorm:"unique"`
-	Username  string   `json:"username ,omitempty" gorm:"unique"`
-	Session   *Session `json:"session ,omitempty"`
-	SessionId uint     `json:"-"`
+	RippleId int       `json:"ripple_id ,omitempty" gorm:"unique"`
+	Username string    `json:"username ,omitempty" gorm:"unique"`
+	Sessions []Session `json:"sessions ,omitempty"`
 }
 
 type Round struct {
 	JsonModel
 	TournamentId int       `json:"tournament_id,omitempty"`
-	Name         string    `json:"name,omitempty"`
+	Name         string    `json:"name,omitempty" gorm:"unique"`
 	Description  string    `json:"description,omitempty"`
 	Active       bool      `json:"active"`
 	DownloadPath string    `json:"download_path,omitempty"`
@@ -35,7 +35,7 @@ type Round struct {
 type Staff struct {
 	JsonModel
 	TournamentId uint   `json:"tournament_id,omitempty"`
-	User         User   `json:"user,omitempty"`
+	User         *User  `json:"user,omitempty"`
 	UserId       uint   `json:"-"`
 	Role         string `json:"role"`
 }
