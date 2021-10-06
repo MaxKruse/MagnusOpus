@@ -142,6 +142,8 @@ func main() {
 	// add api v1 (backwards compatability stuff)
 	v1 := api.Group("/v1")
 
+	v1.Get("/users", routes.GetUsers)
+
 	v1.Get("/me", routes.Me)
 	v1.Get("/self", routes.Me)
 
@@ -152,7 +154,10 @@ func main() {
 
 	tournamentsGroup.Put("/:id", tournaments.PutTournament)
 
+	tournamentsGroup.Delete("/:id", tournaments.DeleteTournament)
+
 	tournamentsGroup.Post("/", tournaments.PostTournament)
+	tournamentsGroup.Post("/:id/staff", tournaments.PostTournamentStaff)
 	tournamentsGroup.Post("/:id/rounds", tournaments.AddRound)
 	tournamentsGroup.Post("/:id/rounds/activate", tournaments.ActivateRound)
 

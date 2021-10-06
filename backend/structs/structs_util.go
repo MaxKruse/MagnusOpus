@@ -142,3 +142,15 @@ func (t Round) ValidRound(localDB *gorm.DB) error {
 
 	return nil
 }
+
+func ValidStaff(staff StaffPost) error {
+	if staff.UserId == 0 {
+		return errors.New("user_id is required")
+	}
+
+	if staff.Role == "" {
+		return errors.New("role is required")
+	}
+
+	return nil
+}

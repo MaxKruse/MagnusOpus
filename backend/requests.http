@@ -12,6 +12,12 @@ Cookie: session_id={{session_id}}
 
 ###
 
+# Get Users
+GET https://localhost/api/v1/users
+Cookie: session_id={{session_id}}
+
+###
+
 # Get Tournaments
 GET https://localhost/api/v1/tournaments
 Authorization: Bearer {{session_id}}
@@ -21,6 +27,13 @@ Authorization: Bearer {{session_id}}
 # Get Tournament
 GET https://localhost/api/v1/tournaments/1
 Cookie: session_id={{session_id}}
+
+###
+
+# Delete Tournament
+DELETE https://localhost/api/v1/tournaments/1
+Cookie: session_id={{session_id}}
+content-type: application/json
 
 ###
 
@@ -76,4 +89,17 @@ content-type: application/json
 
 {
     "Name": "Finals"
+}
+
+
+###
+
+# Add Staff
+POST https://localhost/api/v1/tournaments/1/staff
+Cookie: session_id={{session_id}}
+Content-Type: application/json
+
+{
+    "user_id": 1,
+    "role": "judge"
 }
