@@ -56,6 +56,19 @@ func (t Tournament) TournamentExists(localDB *gorm.DB) error {
 	return nil
 }
 
+func (t Tournament) IsRegistered(localDB *gorm.DB, user_id uint) error {
+	res := Tournament{}
+	localDB.Preload("Registrations").First(&res, t.ID)
+
+	for _, u := range res.Registrations {
+		if u.ID == user_id {
+			return errors.New("user is already registered")
+		}
+	}
+
+	return nil
+}
+
 func (t Tournament) ValidTournament(localDB *gorm.DB) error {
 	if t.Name == "" {
 		return errors.New("name is required")

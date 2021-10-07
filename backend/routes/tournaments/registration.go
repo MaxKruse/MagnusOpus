@@ -14,6 +14,9 @@ func Register(c *fiber.Ctx) error {
 		return utils.DefaultErrorMessage(c, err)
 	}
 
+	// nil some self values for response
+	self.Sessions = nil
+
 	// get current tournament
 	id := c.Params("id")
 	idUint, err := strconv.ParseUint(id, 10, 64)
@@ -26,9 +29,14 @@ func Register(c *fiber.Ctx) error {
 		return utils.DefaultErrorMessage(c, err)
 	}
 
-	tournament.Registrations = append(tournament.Registrations, self)
-
+	// check if we are already registered
 	localDB := globals.DBConn
+
+	if err := tournament.IsRegistered(localDB, self.ID); err != nil {
+		return utils.DefaultErrorMessage(c, err)
+	}
+
+	tournament.Registrations = append(tournament.Registrations, self)
 	err = localDB.Save(&tournament).Error
 	if err != nil {
 		return utils.DefaultErrorMessage(c, err)
