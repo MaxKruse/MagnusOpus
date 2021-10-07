@@ -11,8 +11,6 @@ import (
 func GetTournament(tournament_id uint) (structs.Tournament, error) {
 	localDB := globals.DBConn
 
-	log.Println("Getting Tournament:", tournament_id)
-
 	t := structs.Tournament{}
 	err := localDB.Preload("Registrations").Preload("Staffs.User").Preload("Rounds").First(&t, tournament_id).Error
 	if err != nil {
@@ -22,26 +20,26 @@ func GetTournament(tournament_id uint) (structs.Tournament, error) {
 	return t, nil
 }
 
-func CanViewTournament(user_id uint, tournament_id uint) error {
+func CanViewTournament(user_id uint, tournament_id uint) (structs.Tournament, error) {
 	t, err := GetTournament(tournament_id)
 	if err != nil {
-		return err
+		return t, err
 	}
 
 	for _, staff := range t.Staffs {
 		if staff.User.ID == user_id {
 			switch staff.Role {
 			case "owner", "admin", "mod", "judge":
-				return nil
+				return t, nil
 			}
 		}
 	}
 
 	if t.Visible {
-		return nil
+		return t, nil
 	}
 
-	return errors.New("not allowed to view tournament: need owner, admin, mod, judge")
+	return t, errors.New("not allowed to view tournament: need owner, admin, mod, judge")
 }
 
 func CanEditTournament(user_id uint, tournament_id uint) error {

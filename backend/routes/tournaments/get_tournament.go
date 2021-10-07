@@ -25,7 +25,8 @@ func GetTournament(c *fiber.Ctx) error {
 		return utils.DefaultErrorMessage(c, err, fiber.StatusNotFound)
 	}
 
-	if canView := utils.CanViewTournament(selfID, tournament.ID); canView != nil {
+	_, err = utils.CanViewTournament(selfID, tournament.ID)
+	if err != nil {
 		return utils.DefaultErrorMessage(c, err, fiber.StatusForbidden)
 	}
 
