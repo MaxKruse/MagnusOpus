@@ -75,6 +75,14 @@ func (t Tournament) ValidTournament(localDB *gorm.DB) error {
 		return errors.New("end_time is required (ISO 8601) (RFC 3339)")
 	}
 
+	if t.RegistrationStartTime == zeroTime {
+		return errors.New("registration_start_time is required (ISO 8601) (RFC 3339)")
+	}
+
+	if t.RegistrationEndTime == zeroTime {
+		return errors.New("registration_end_time is required (ISO 8601) (RFC 3339)")
+	}
+
 	// Check if the time is in the future
 	if t.StartTime.Before(time.Now()) {
 		return errors.New("start_time must be in the future")
@@ -87,6 +95,25 @@ func (t Tournament) ValidTournament(localDB *gorm.DB) error {
 	// check if end_time is at least 3 days after start_time
 	if t.EndTime.Sub(t.StartTime) < (3 * 24 * time.Hour) {
 		return errors.New("end_time must be at least 3 days after start_time")
+	}
+
+	// Check if the time is in the future
+	if t.RegistrationStartTime.Before(time.Now()) {
+		return errors.New("registration_start_time must be in the future")
+	}
+
+	if t.RegistrationEndTime.Before(time.Now()) {
+		return errors.New("registration_end_time must be in the future")
+	}
+
+	// check if end_time is at least 3 days after start_time
+	if t.RegistrationEndTime.Sub(t.RegistrationStartTime) < (3 * 24 * time.Hour) {
+		return errors.New("registration_end_time must be at least 3 days after registration_start_time")
+	}
+
+	// check if registration ends before tournament starts
+	if t.RegistrationEndTime.After(t.StartTime) {
+		return errors.New("registration_end_time must be before end_time")
 	}
 
 	return nil

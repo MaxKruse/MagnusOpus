@@ -97,3 +97,13 @@ func IsSuperadmin(c *fiber.Ctx) bool {
 
 	return false
 }
+
+func DefaultErrorMessage(c *fiber.Ctx, err error) error {
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error":   err.Error(),
+			"success": false,
+		})
+	}
+	return nil
+}

@@ -154,6 +154,8 @@ func main() {
 
 	tournamentsGroup.Delete("/:id", tournaments.DeleteTournament)
 
+	tournamentsGroup.Post("/:id/registration", tournaments.Register)
+
 	tournamentsGroup.Post("/", tournaments.PostTournament)
 	tournamentsGroup.Post("/:id/staff", tournaments.PostTournamentStaff)
 	tournamentsGroup.Post("/:id/rounds", tournaments.AddRound)

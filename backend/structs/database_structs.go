@@ -42,13 +42,16 @@ type Staff struct {
 
 type Tournament struct {
 	JsonModel
-	Name        string    `json:"name,omitempty" gorm:"unique"`
-	Description string    `json:"description,omitempty"`
-	StartTime   time.Time `json:"start_time,omitempty"`
-	EndTime     time.Time `json:"end_time,omitempty"`
-	Rounds      []Round   `json:"rounds,omitempty"`
-	Staffs      []Staff   `json:"staffs,omitempty" gorm:"many2many:tournament_staff"`
-	Visible     bool      `json:"-"`
+	Name                  string    `json:"name,omitempty" gorm:"unique"`
+	Description           string    `json:"description,omitempty"`
+	StartTime             time.Time `json:"start_time,omitempty"`
+	EndTime               time.Time `json:"end_time,omitempty"`
+	RegistrationStartTime time.Time `json:"registration_start_time,omitempty"`
+	RegistrationEndTime   time.Time `json:"registration_end_time,omitempty"`
+	Rounds                []Round   `json:"rounds,omitempty"`
+	Staffs                []Staff   `json:"staffs,omitempty" gorm:"many2many:tournament_staff"`
+	Registrations         []User    `json:"registrations,omitempty" gorm:"many2many:tournament_registrations"`
+	Visible               bool      `json:"-"`
 }
 
 type JsonModel struct {

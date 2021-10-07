@@ -27,6 +27,11 @@ Any specific types are in reference to golangs default types.
                 "staff",
                 "staff",
                 "staff",
+           ],
+           "registration_start_time": "time.Time",
+           "registartion_end_time": "time.Time",
+           "registrations": [
+                "user"
            ]
        }
     ```
