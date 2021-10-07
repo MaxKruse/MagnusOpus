@@ -9,7 +9,6 @@ import (
 	"github.com/maxkruse/magnusopus/backend/globals"
 	"github.com/maxkruse/magnusopus/backend/structs"
 	"github.com/maxkruse/magnusopus/backend/utils"
-	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 )
 
@@ -43,10 +42,6 @@ func GetOAuthRipple(c *fiber.Ctx) error {
 		if err := sess.Save(); err != nil {
 			return err
 		}
-		globals.Logger.WithFields(logrus.Fields{
-			"get":         sess.Get(id),
-			"oauth_state": id,
-		}).Info("Saved session")
 
 		return c.Redirect(oauthConfig.AuthCodeURL(id))
 	}
@@ -63,7 +58,6 @@ func GetOAuthRipple(c *fiber.Ctx) error {
 
 	rippleResp := structs.RippleSelf{}
 
-	globals.Logger.WithField("token", token).Debug("Attempting to receive /api/v1/users/self")
 	client := oauthConfig.Client(context.Background(), token)
 
 	// Get the user info
@@ -97,14 +91,11 @@ func GetOAuthRipple(c *fiber.Ctx) error {
 	localDB := globals.DBConn
 	localDB.Preload("Session").First(&user, "ripple_id = ?", rippleResp.UserId)
 
-	globals.Logger.WithField("user", user).Info("Saving user")
 	user.RippleId = rippleResp.UserId
 	user.Username = rippleResp.Username
 	user.Sessions = append(user.Sessions, structs.Session{SessionToken: sess.ID()})
 
-	globals.Logger.WithField("user", user).Info("Saving user")
 	localDB.Save(&user)
-	globals.Logger.WithField("user", user).Infoln("Saved user")
 
 	// Save session
 	if err := sess.Save(); err != nil {
@@ -118,21 +109,10 @@ func getOauth(c *fiber.Ctx, oauthConfig *oauth2.Config, code string) (*oauth2.To
 	if err != nil {
 		return nil, err
 	}
-
-	globals.Logger.WithFields(logrus.Fields{
-		"code": code,
-	}).Debug("Received code")
-
 	// Read oauthState from Cookie
 	oauth_state := sess.Get("oauth_state")
 
 	if c.Query("state") != oauth_state {
-		globals.Logger.WithFields(logrus.Fields{
-			"state":       c.Query("state"),
-			"oauth_state": oauth_state,
-			"connection":  c.IP(),
-		}).Error("State mismatch")
-
 		return nil, fiber.ErrBadRequest
 	}
 

@@ -23,7 +23,6 @@ func GetUserFromSession(sessionToken string) (structs.User, error) {
 	if err != nil {
 		return user, err
 	}
-	globals.Logger.WithField("sess", sess).Debug("Got session from token")
 
 	// get session from db
 	err = localDB.First(&sess, sess).Error
@@ -33,7 +32,6 @@ func GetUserFromSession(sessionToken string) (structs.User, error) {
 
 	// get user from sess
 	localDB.Preload("Sessions").First(&user, sess.UserId)
-	globals.Logger.WithField("user", user).Debug("User found")
 
 	return user, nil
 }

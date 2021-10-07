@@ -77,8 +77,6 @@ func PutTournament(c *fiber.Ctx) error {
 	update.Rounds = res.Rounds
 	update.Staffs = res.Staffs
 
-	globals.Logger.WithField("tournament", update).Info("Updating tournament")
-
 	err = localDB.Where(update.ID).UpdateColumns(&t).Error
 
 	if err != nil {
