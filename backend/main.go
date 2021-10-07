@@ -94,7 +94,7 @@ func checkSessionCookie(c *fiber.Ctx) error {
 		return c.Next()
 	}
 
-	user, err := utils.GetSelf(c)
+	_, err := utils.GetSelf(c)
 
 	if err != nil {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
@@ -102,8 +102,6 @@ func checkSessionCookie(c *fiber.Ctx) error {
 			"success": false,
 		})
 	}
-
-	globals.Logger.WithField("user", user).Debug("User")
 
 	return c.Next()
 }

@@ -10,11 +10,11 @@ import (
 )
 
 func ActivateRound(c *fiber.Ctx) error {
-	self, err := utils.GetSelf(c)
+	selfID, err := utils.GetSelfID(c)
 	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error":   "Not logged in",
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success": false,
+			"error":   err.Error(),
 		})
 	}
 
@@ -27,7 +27,7 @@ func ActivateRound(c *fiber.Ctx) error {
 		})
 	}
 
-	editErr := utils.CanEditRounds(self.ID, uint(tournamentIDUint))
+	editErr := utils.CanEditRounds(selfID, uint(tournamentIDUint))
 	if editErr != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"error":   editErr.Error(),
@@ -66,11 +66,11 @@ func ActivateRound(c *fiber.Ctx) error {
 }
 
 func AddRound(c *fiber.Ctx) error {
-	self, err := utils.GetSelf(c)
+	selfID, err := utils.GetSelfID(c)
 	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error":   "Not logged in",
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success": false,
+			"error":   err.Error(),
 		})
 	}
 
@@ -83,7 +83,7 @@ func AddRound(c *fiber.Ctx) error {
 		})
 	}
 
-	editErr := utils.CanEditRounds(self.ID, uint(tournamentIDUint))
+	editErr := utils.CanEditRounds(selfID, uint(tournamentIDUint))
 	if editErr != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"error":   editErr.Error(),

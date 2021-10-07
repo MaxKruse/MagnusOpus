@@ -20,15 +20,15 @@ func PostTournamentStaff(c *fiber.Ctx) error {
 		})
 	}
 
-	self, err := utils.GetSelf(c)
+	selfID, err := utils.GetSelfID(c)
 	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"sucess": false,
-			"error":  err.Error(),
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"success": false,
+			"error":   err.Error(),
 		})
 	}
 
-	adminErr := utils.CanAddStaff(self.ID, uint(id))
+	adminErr := utils.CanAddStaff(selfID, uint(id))
 	if adminErr != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"sucess": false,

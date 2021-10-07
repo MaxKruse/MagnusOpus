@@ -11,14 +11,20 @@ func GetTournaments(c *fiber.Ctx) error {
 	tournaments := []*structs.Tournament{}
 	results := tournaments
 	localDB := globals.DBConn
-	self, _ := utils.GetSelf(c)
+	selfID, err := utils.GetSelfID(c)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"success": false,
+			"error":   err.Error(),
+		})
+	}
 
 	localDB.Preload("Staffs").Find(&tournaments)
 
 	for _, tournament := range tournaments {
 		canView := tournament.Visible
 		for _, staff := range tournament.Staffs {
-			if staff.UserId == self.ID {
+			if staff.UserId == selfID {
 				canView = true
 			}
 		}

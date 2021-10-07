@@ -71,6 +71,16 @@ func GetSelf(c *fiber.Ctx) (structs.User, error) {
 	return user, nil
 }
 
+func GetSelfID(c *fiber.Ctx) (uint, error) {
+	self, err := GetSelf(c)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return self.ID, nil
+}
+
 func IsSuperadmin(c *fiber.Ctx) bool {
 	self, err := GetSelf(c)
 

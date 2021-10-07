@@ -10,7 +10,14 @@ import (
 )
 
 func PutTournament(c *fiber.Ctx) error {
-	self, _ := utils.GetSelf(c)
+	selfID, err := utils.GetSelfID(c)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"success": false,
+			"error":   err.Error(),
+		})
+	}
+
 	tournament_id64, err := strconv.ParseUint(c.Params("id"), 10, 64)
 	tournament_id := uint(tournament_id64)
 
@@ -21,9 +28,7 @@ func PutTournament(c *fiber.Ctx) error {
 		})
 	}
 
-	editErr := utils.CanEditTournament(self.ID, tournament_id)
-
-	if editErr != nil {
+	if editErr := utils.CanEditTournament(selfID, tournament_id); editErr != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"error":   editErr.Error(),
 			"success": false,
