@@ -22,7 +22,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	glog "gorm.io/gorm/logger"
 )
 
 func init() {
@@ -51,7 +50,7 @@ func init() {
 	err := error(nil)
 	globals.DBConn, err = gorm.Open(postgres.Open(globals.Config.POSTGRES_URL), &gorm.Config{
 		PrepareStmt: true,
-		Logger:      glog.Default.LogMode(glog.Info),
+		// Logger:      glog.Default.LogMode(glog.Info),
 	})
 	if err != nil {
 		globals.Logger.Fatal(err)
