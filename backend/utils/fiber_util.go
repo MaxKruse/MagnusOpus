@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"strconv"
 	"time"
 
@@ -81,28 +82,27 @@ func GetSelfID(c *fiber.Ctx) (uint, error) {
 	return self.ID, nil
 }
 
-func IsSuperadmin(c *fiber.Ctx) bool {
+func IsSuperadmin(c *fiber.Ctx) error {
 	self, err := GetSelf(c)
 
 	if err != nil {
-		return false
+		return err
 	}
 
 	// check if user.RippleId is in globals.Superadmins
 	for _, superadmin := range globals.AllowedSuperadmin {
 		if superadmin == self.RippleId {
-			return true
+			return nil
 		}
 	}
 
-	return false
+	return errors.New("user is not a superadmin")
 }
 
-func DefaultErrorMessage(c *fiber.Ctx, err error) error {
+func DefaultErrorMessage(c *fiber.Ctx, err error, code int) error {
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error":   err.Error(),
-			"success": false,
+		return c.Status(code).JSON(fiber.Map{
+			"error": err.Error(),
 		})
 	}
 	return nil

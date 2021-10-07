@@ -15,39 +15,26 @@ func DeleteTournament(c *fiber.Ctx) error {
 
 	idUint, err := strconv.ParseUint(id, 10, 64)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"success": false,
-			"error":   err.Error(),
-		})
+		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
 	}
 
 	selfID, err := utils.GetSelfID(c)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"success": false,
-			"error":   err.Error(),
-		})
+		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
 	}
 
 	if err := utils.CanEditTournament(selfID, uint(idUint)); err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"success": false,
-			"error":   err.Error(),
-		})
+		return utils.DefaultErrorMessage(c, err, fiber.StatusUnauthorized)
 	}
 
 	t := structs.Tournament{}
 	err = localDB.Delete(&t, id).Error
 
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"success": false,
-			"error":   err.Error(),
-		})
+		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success": true,
 		"message": "deleted tournament",
 	})
 

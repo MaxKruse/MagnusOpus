@@ -15,7 +15,7 @@ import (
 func GetOAuthRipple(c *fiber.Ctx) error {
 	sess, err := globals.SessionStore.Get(c)
 	if err != nil {
-		return err
+		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
 	}
 
 	// Get the oauth2 config
@@ -49,11 +49,7 @@ func GetOAuthRipple(c *fiber.Ctx) error {
 	token, err := getOauth(c, &oauthConfig, code)
 
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"success": false,
-			"message": "Could not get token",
-			"error":   err.Error(),
-		})
+		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
 	}
 
 	rippleResp := structs.RippleSelf{}
@@ -64,26 +60,9 @@ func GetOAuthRipple(c *fiber.Ctx) error {
 	resp, err := client.Get("https://ripple.moe/api/v1/users/self")
 
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"success": false,
-			"message": "Could not get user data",
-			"error":   err.Error(),
-		})
+		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
 	}
-
 	json.NewDecoder(resp.Body).Decode(&rippleResp)
-
-	// check if rippleResp has the UserId
-	if rippleResp.UserId == 0 {
-		globals.Logger.WithField("token", token).Debug("Failed getting /api/v1/users/self")
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"success":         false,
-			"message":         "Could not get user data after trying 3 times",
-			"error":           "UserId is empty",
-			"responseDecoded": rippleResp,
-			"token":           token,
-		})
-	}
 
 	// Save user
 	var user structs.User
@@ -132,10 +111,7 @@ func Logout(c *fiber.Ctx) error {
 
 	self, err := utils.GetSelf(c)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"success": false,
-			"error":   err.Error(),
-		})
+		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
 	}
 
 	// Delete session for self
@@ -146,10 +122,7 @@ func Logout(c *fiber.Ctx) error {
 	sess.Destroy()
 
 	if err := sess.Save(); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"success": false,
-			"error":   err.Error(),
-		})
+		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
 	}
 
 	return c.Redirect("/")

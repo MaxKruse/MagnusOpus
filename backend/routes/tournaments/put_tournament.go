@@ -12,27 +12,18 @@ import (
 func PutTournament(c *fiber.Ctx) error {
 	selfID, err := utils.GetSelfID(c)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"success": false,
-			"error":   err.Error(),
-		})
+		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
 	}
 
 	tournament_id64, err := strconv.ParseUint(c.Params("id"), 10, 64)
 	tournament_id := uint(tournament_id64)
 
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"Message": "Invalid tournament id",
-			"success": false,
-		})
+		return utils.DefaultErrorMessage(c, err, fiber.StatusBadRequest)
 	}
 
 	if editErr := utils.CanEditTournament(selfID, tournament_id); editErr != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error":   editErr.Error(),
-			"success": false,
-		})
+		return utils.DefaultErrorMessage(c, err, fiber.StatusUnauthorized)
 	}
 	c.Accepts("application/json")
 	t := structs.Tournament{}
@@ -41,19 +32,13 @@ func PutTournament(c *fiber.Ctx) error {
 	err = c.BodyParser(&t)
 
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error":   err.Error(),
-			"success": false,
-		})
+		return utils.DefaultErrorMessage(c, err, fiber.StatusBadRequest)
 	}
 
 	localDB := globals.DBConn
 	err = t.ValidTournament(localDB)
 	if err != nil {
-		return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{
-			"error":   err.Error(),
-			"success": false,
-		})
+		return utils.DefaultErrorMessage(c, err, fiber.StatusUnprocessableEntity)
 	}
 
 	// get tournament from id in db
@@ -61,10 +46,7 @@ func PutTournament(c *fiber.Ctx) error {
 	err = localDB.First(&res, tournament_id).Error
 
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error":   err.Error(),
-			"success": false,
-		})
+		return utils.DefaultErrorMessage(c, err, fiber.StatusNotFound)
 	}
 
 	// Dont Accept: Rounds, Staff. Instead, set them to nil
@@ -80,10 +62,7 @@ func PutTournament(c *fiber.Ctx) error {
 	err = localDB.Where(update.ID).UpdateColumns(&t).Error
 
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error":   err.Error(),
-			"success": false,
-		})
+		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(update)

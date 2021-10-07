@@ -12,51 +12,33 @@ import (
 func ActivateRound(c *fiber.Ctx) error {
 	selfID, err := utils.GetSelfID(c)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"success": false,
-			"error":   err.Error(),
-		})
+		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
 	}
 
 	tournamentID := c.Params("id")
 	tournamentIDUint, err := strconv.ParseUint(tournamentID, 10, 64)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error":   "Invalid tournament ID",
-			"success": false,
-		})
+		return utils.DefaultErrorMessage(c, err, fiber.StatusBadRequest)
 	}
 
 	editErr := utils.CanEditRounds(selfID, uint(tournamentIDUint))
 	if editErr != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error":   editErr.Error(),
-			"success": false,
-		})
+		return utils.DefaultErrorMessage(c, err, fiber.StatusUnauthorized)
 	}
 
 	round := structs.Round{}
 	if err := c.BodyParser(&round); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error":   err.Error(),
-			"success": false,
-		})
+		return utils.DefaultErrorMessage(c, err, fiber.StatusBadRequest)
 	}
 
 	t, err := utils.GetTournament(uint(tournamentIDUint))
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error":   "Tournament not found",
-			"success": false,
-		})
+		return utils.DefaultErrorMessage(c, err, fiber.StatusNotFound)
 	}
 
 	err = t.ActivateRound(round.Name)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error":   err.Error(),
-			"success": false,
-		})
+		return utils.DefaultErrorMessage(c, err, fiber.StatusBadRequest)
 	}
 
 	localDB := globals.DBConn

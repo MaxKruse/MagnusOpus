@@ -13,10 +13,7 @@ func GetTournaments(c *fiber.Ctx) error {
 	localDB := globals.DBConn
 	selfID, err := utils.GetSelfID(c)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"success": false,
-			"error":   err.Error(),
-		})
+		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
 	}
 
 	localDB.Preload("Staffs").Find(&tournaments)

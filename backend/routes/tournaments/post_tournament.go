@@ -8,11 +8,8 @@ import (
 )
 
 func PostTournament(c *fiber.Ctx) error {
-	if !utils.IsSuperadmin(c) {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error":   "Unauthorized",
-			"success": false,
-		})
+	if err := utils.IsSuperadmin(c); err != nil {
+		return utils.DefaultErrorMessage(c, err, fiber.StatusUnauthorized)
 	}
 	c.Accepts("application/json")
 	t := structs.Tournament{}
@@ -21,10 +18,7 @@ func PostTournament(c *fiber.Ctx) error {
 	err := c.BodyParser(&t)
 
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error":   err.Error(),
-			"success": false,
-		})
+		return utils.DefaultErrorMessage(c, err, fiber.StatusBadRequest)
 	}
 
 	localDB := globals.DBConn
@@ -32,10 +26,7 @@ func PostTournament(c *fiber.Ctx) error {
 	// TODO: Validate tournament
 	err = t.ValidTournament(localDB)
 	if err != nil {
-		return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{
-			"error":   err.Error(),
-			"success": false,
-		})
+		return utils.DefaultErrorMessage(c, err, fiber.StatusUnprocessableEntity)
 	}
 
 	// Dont Accept: Rounds, Staff. Instead, set them to nil
@@ -44,10 +35,7 @@ func PostTournament(c *fiber.Ctx) error {
 
 	me, err := utils.GetSelf(c)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error":   err.Error(),
-			"success": false,
-		})
+		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
 	}
 
 	staffMember := structs.Staff{
@@ -59,10 +47,7 @@ func PostTournament(c *fiber.Ctx) error {
 	err = localDB.Save(&t).Error
 
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error":   err.Error(),
-			"success": false,
-		})
+		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
 	}
 
 	// Remove session from staff user to not display

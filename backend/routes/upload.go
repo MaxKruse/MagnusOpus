@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -9,13 +10,8 @@ import (
 )
 
 func Upload(c *fiber.Ctx) error {
-	// check if authenticated
-	if _, err := utils.CheckAuth(c); err != nil {
-		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
-			"success": false,
-			"message": err.Error(),
-		})
-	}
+	// TODO: Not used. Implement this
+	return utils.DefaultErrorMessage(c, errors.New("not implemented"), fiber.StatusNotImplemented)
 
 	file, err := c.FormFile("file")
 	if err != nil {

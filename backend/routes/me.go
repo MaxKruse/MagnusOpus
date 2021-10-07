@@ -8,10 +8,7 @@ import (
 func Me(c *fiber.Ctx) error {
 	self, err := utils.GetSelf(c)
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{
-			"error":   err.Error(),
-			"success": false,
-		})
+		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(self)
