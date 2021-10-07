@@ -90,7 +90,7 @@ Cookie: session_id={{session_id}}
 content-type: application/json
 
 {
-    "Name": "Finals"
+    "Name": "Grandfinals"
 }
 
 
