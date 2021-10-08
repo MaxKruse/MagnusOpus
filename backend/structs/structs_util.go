@@ -110,11 +110,6 @@ func (t Tournament) ValidTournament(localDB *gorm.DB) error {
 		return errors.New("end_time must be at least 3 days after start_time")
 	}
 
-	// Check if the time is in the future
-	if t.RegistrationStartTime.Before(time.Now()) {
-		return errors.New("registration_start_time must be in the future")
-	}
-
 	if t.RegistrationEndTime.Before(time.Now()) {
 		return errors.New("registration_end_time must be in the future")
 	}
@@ -190,6 +185,14 @@ func ValidStaff(staff StaffPost) error {
 
 	if staff.Role == "" {
 		return errors.New("role is required")
+	}
+
+	return nil
+}
+
+func (t Tournament) RegistrationsOpen() error {
+	if time.Now().After(t.RegistrationEndTime) {
+		return errors.New("registration is closed")
 	}
 
 	return nil

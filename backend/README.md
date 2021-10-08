@@ -1,13 +1,5 @@
 # Todos
 
-- [x] Support for signup using ripple
-- [x] Save user data
-- [ ] Save beatmap 
-
-## Spec
-
-### Response Types
-
 Any specific types are in reference to golangs default types.
 
 - tournament:
@@ -79,6 +71,16 @@ Any specific types are in reference to golangs default types.
         }
     ```
 
+
+- beatmap:
+    ```json
+       {
+           "id": "int",
+           "hash": "string",
+           "to_use": "bool",
+        }
+    ```
+
 ### User Spec
 
 - [x] [GET] /oauth: Redirect user to oauth of the server, e.g. https://localhost/oauth/ripple redirects to ripple's oauth page
@@ -95,13 +97,18 @@ Any specific types are in reference to golangs default types.
 
 - [x] [GET] /api/v1/self: Get personal data, including all tournament data, beatmaps and tokens. Literally everything
 
-- [ ] [POST] /api/v1/{tournament}/signup: Signup for a tournament
+- [X] [POST] /api/v1/{tournament}/registration: Signup for a tournament
 
-- [ ] [POST] /api/v1/upload: Upload a beatmap
+- [X] [DELETE] /api/v1/{tournament}/registration: Unsignup for a tournament
+
+- [ ] [GET] /api/v1/{tournament}/rounds/{round_name}/beatmaps: Receive my uploaded maps
+
+- [ ] [DELETE] /api/v1/{tournament}/rounds/{round_name}/beatmaps/{beatmap_hash}: Delete my uploaded map
+
+- [ ] [POST] /api/v1/{tournament}/rounds/{round_name}/beatmaps: Upload a beatmap
   - Required fields:
     - file: .osu file
-    - name: Beatmap name
-    - tournament_id: Tournament id
+  - This will replace the oldest available file if the limit of 5 submittions is reached
 
 ### Admin Spec
 

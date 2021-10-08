@@ -1,6 +1,7 @@
 package tournaments
 
 import (
+	"errors"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -36,6 +37,10 @@ func Register(c *fiber.Ctx) error {
 		return utils.DefaultErrorMessage(c, err, fiber.StatusNotAcceptable)
 	}
 
+	if err := tournament.RegistrationsOpen(); err != nil {
+		return utils.DefaultErrorMessage(c, err, fiber.StatusNotAcceptable)
+	}
+
 	tournament.Registrations = append(tournament.Registrations, self)
 	err = localDB.Save(&tournament).Error
 	if err != nil {
@@ -47,4 +52,47 @@ func Register(c *fiber.Ctx) error {
 	tournament.Rounds = nil
 
 	return c.Status(fiber.StatusCreated).JSON(tournament)
+}
+
+func Unregister(c *fiber.Ctx) error {
+	self, err := utils.GetSelf(c)
+	if err != nil {
+		return utils.DefaultErrorMessage(c, err, fiber.StatusUnauthorized)
+	}
+
+	// get current tournament
+	id := c.Params("id")
+	idUint, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
+	}
+
+	tournament, err := utils.GetTournament(uint(idUint))
+	if err != nil {
+		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
+	}
+
+	localDB := globals.DBConn
+
+	// check if we are actually registered
+	if err := tournament.IsRegistered(localDB, self.ID); err == nil {
+		return utils.DefaultErrorMessage(c, errors.New("not registered to tournament"), fiber.StatusNotAcceptable)
+	}
+
+	// check if registrations are still open
+	if err := tournament.RegistrationsOpen(); err != nil {
+		return utils.DefaultErrorMessage(c, err, fiber.StatusNotAcceptable)
+	}
+
+	// remove self from registrations
+	for _, registration := range tournament.Registrations {
+		if registration.ID == self.ID {
+			localDB.Model(&tournament).Association("Registrations").Delete(&registration)
+			break
+		}
+	}
+
+	tournament, _ = utils.GetTournament(tournament.ID)
+
+	return c.Status(fiber.StatusOK).JSON(tournament)
 }
