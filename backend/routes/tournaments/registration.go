@@ -33,6 +33,11 @@ func Register(c *fiber.Ctx) error {
 	// check if we are already registered
 	localDB := globals.DBConn
 
+	// check if this tournament is even available
+	if _, err := utils.CanViewTournament(self.ID, tournament.ID); err != nil {
+		return utils.DefaultErrorMessage(c, err, fiber.StatusForbidden)
+	}
+
 	if err := tournament.IsRegistered(localDB, self.ID); err != nil {
 		return utils.DefaultErrorMessage(c, err, fiber.StatusNotAcceptable)
 	}

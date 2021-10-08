@@ -101,7 +101,7 @@ Any specific types are in reference to golangs default types.
 
 - [X] [DELETE] /api/v1/{tournament}/registration: Unsignup for a tournament
 
-- [ ] [GET] /api/v1/{tournament}/rounds/{round_name}/beatmaps: Receive my uploaded maps
+- [X] [GET] /api/v1/{tournament}/rounds/{round_name}/beatmaps: Receive uploaded maps, or judgable maps for judges
 
 - [ ] [DELETE] /api/v1/{tournament}/rounds/{round_name}/beatmaps/{beatmap_hash}: Delete my uploaded map
 

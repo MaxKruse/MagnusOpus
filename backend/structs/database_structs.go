@@ -16,20 +16,22 @@ type Session struct {
 
 type User struct {
 	JsonModel
-	RippleId int       `json:"ripple_id ,omitempty" gorm:"unique"`
-	Username string    `json:"username ,omitempty" gorm:"unique"`
-	Sessions []Session `json:"sessions ,omitempty"`
+	RippleId           int                 `json:"ripple_id ,omitempty" gorm:"unique"`
+	Username           string              `json:"username ,omitempty" gorm:"unique"`
+	Sessions           []Session           `json:"sessions ,omitempty"`
+	BeatmapSubmittions []BeatmapSubmittion `json:"beatmap_submittions ,omitempty" gorm:"many2many:user_round_submittions"`
 }
 
 type Round struct {
 	JsonModel
-	TournamentId int       `json:"tournament_id,omitempty"`
-	Name         string    `json:"name,omitempty" gorm:"unique"`
-	Description  string    `json:"description,omitempty"`
-	Active       bool      `json:"active"`
-	DownloadPath string    `json:"download_path,omitempty"`
-	StartTime    time.Time `json:"start_time,omitempty"`
-	EndTime      time.Time `json:"end_time,omitempty"`
+	TournamentId       int                 `json:"tournament_id,omitempty"`
+	Name               string              `json:"name,omitempty" gorm:"unique"`
+	Description        string              `json:"description,omitempty"`
+	Active             bool                `json:"active"`
+	DownloadPath       string              `json:"download_path,omitempty"`
+	StartTime          time.Time           `json:"start_time,omitempty"`
+	EndTime            time.Time           `json:"end_time,omitempty"`
+	BeatmapSubmittions []BeatmapSubmittion `json:"beatmap_submittions,omitempty" gorm:"many2many:user_round_submittions"`
 }
 
 type Staff struct {
@@ -52,6 +54,15 @@ type Tournament struct {
 	Staffs                []Staff   `json:"staffs,omitempty" gorm:"many2many:tournament_staff"`
 	Registrations         []User    `json:"registrations,omitempty" gorm:"many2many:tournament_registrations"`
 	Visible               bool      `json:"-"`
+}
+
+type BeatmapSubmittion struct {
+	JsonModel
+	RoundId      uint   `json:"-"`
+	UserId       uint   `json:"-"`
+	Hash         string `json:"hash,omitempty"`
+	DownloadPath string `json:"download_path,omitempty"`
+	ToUse        bool   `json:"to_use"`
 }
 
 type JsonModel struct {

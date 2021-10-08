@@ -30,5 +30,9 @@ func GetTournament(c *fiber.Ctx) error {
 		return utils.DefaultErrorMessage(c, err, fiber.StatusForbidden)
 	}
 
+	for i := range tournament.Rounds {
+		tournament.Rounds[i].BeatmapSubmittions = nil
+	}
+
 	return c.Status(fiber.StatusOK).JSON(tournament)
 }

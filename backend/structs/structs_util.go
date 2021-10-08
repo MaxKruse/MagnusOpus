@@ -197,3 +197,37 @@ func (t Tournament) RegistrationsOpen() error {
 
 	return nil
 }
+
+func (t Tournament) GetBeatmapsForJudge(localDB *gorm.DB, round_name string) ([]BeatmapSubmittion, error) {
+	var beatmaps []BeatmapSubmittion
+
+	round_id := uint(0)
+
+	// get round of of round_name
+	for _, r := range t.Rounds {
+		if strings.EqualFold(r.Name, round_name) {
+			round_id = r.ID
+		}
+	}
+
+	err := localDB.Debug().Find(&beatmaps, "round_id = ?", round_id).Error
+
+	return beatmaps, err
+}
+
+func (t Tournament) GetBeatmapsForUser(localDB *gorm.DB, user_id uint, round_name string) ([]BeatmapSubmittion, error) {
+	var beatmaps []BeatmapSubmittion
+
+	round_id := uint(0)
+
+	// get round of of round_name
+	for _, r := range t.Rounds {
+		if strings.EqualFold(r.Name, round_name) {
+			round_id = r.ID
+		}
+	}
+
+	err := localDB.Find(&beatmaps, "round_id = ? AND user_id = ?", round_id, user_id).Error
+
+	return beatmaps, err
+}

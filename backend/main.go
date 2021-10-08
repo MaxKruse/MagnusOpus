@@ -17,6 +17,7 @@ import (
 	"github.com/maxkruse/magnusopus/backend/performance"
 	"github.com/maxkruse/magnusopus/backend/routes"
 	"github.com/maxkruse/magnusopus/backend/routes/tournaments"
+	"github.com/maxkruse/magnusopus/backend/routes/tournaments/submittions"
 	"github.com/maxkruse/magnusopus/backend/structs"
 	"github.com/maxkruse/magnusopus/backend/utils"
 	"github.com/sirupsen/logrus"
@@ -160,6 +161,8 @@ func main() {
 	tournamentsGroup.Post("/:id/staff", tournaments.PostTournamentStaff)
 	tournamentsGroup.Post("/:id/rounds", tournaments.AddRound)
 	tournamentsGroup.Post("/:id/rounds/activate", tournaments.ActivateRound)
+
+	tournamentsGroup.Get("/:id/rounds/:name/beatmaps", submittions.GetBeatmaps)
 
 	// Match anything else
 	app.Use(func(c *fiber.Ctx) error {
