@@ -128,3 +128,16 @@ Content-Type: application/json
 GET https://localhost/api/v1/tournaments/1/rounds/Grandfinals/beatmaps
 Cookie: session_id={{session_id}}
 Content-Type: application/json
+
+### 
+
+# Post BeatmapSubmittion
+POST https://localhost/api/v1/tournaments/1/rounds/Grandfinals/beatmaps
+Cookie: session_id={{session_id}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="main.go"
+
+< /home/dev/Desktop/gorm_stuff/main.go
+------WebKitFormBoundary7MA4YWxkTrZu0gW--

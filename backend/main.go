@@ -66,6 +66,7 @@ func init() {
 	localDB.AutoMigrate(&structs.Tournament{})
 	localDB.AutoMigrate(&structs.Staff{})
 	localDB.AutoMigrate(&structs.Round{})
+	localDB.AutoMigrate(&structs.BeatmapSubmittion{})
 	globals.Logger.Debug("Migrated")
 
 	globals.SessionStore = session.New(session.Config{
@@ -163,6 +164,7 @@ func main() {
 	tournamentsGroup.Post("/:id/rounds/activate", tournaments.ActivateRound)
 
 	tournamentsGroup.Get("/:id/rounds/:name/beatmaps", submittions.GetBeatmaps)
+	tournamentsGroup.Post("/:id/rounds/:name/beatmaps", submittions.Upload)
 
 	// Match anything else
 	app.Use(func(c *fiber.Ctx) error {
