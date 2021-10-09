@@ -57,7 +57,7 @@ func CheckAuth(c *fiber.Ctx) (string, error) {
 	return token, nil
 }
 
-func GetSelf(c *fiber.Ctx) (structs.User, error) {
+func GetSelfFromDB(c *fiber.Ctx) (structs.User, error) {
 	token, err := CheckAuth(c)
 	if err != nil {
 		return structs.User{}, err
@@ -72,18 +72,22 @@ func GetSelf(c *fiber.Ctx) (structs.User, error) {
 	return user, nil
 }
 
-func GetSelfID(c *fiber.Ctx) (uint, error) {
-	self, err := GetSelf(c)
-
+func GetSelfFromSess(c *fiber.Ctx) (structs.User, error) {
+	sess, err := globals.SessionStore.Get(c)
 	if err != nil {
-		return 0, err
+		return structs.User{}, err
 	}
 
-	return self.ID, nil
+	user := structs.User{}
+	user.ID = sess.Get("user_id").(uint)
+	user.Username = sess.Get("username").(string)
+	user.RippleId = sess.Get("ripple_id").(int)
+
+	return user, nil
 }
 
 func IsSuperadmin(c *fiber.Ctx) error {
-	self, err := GetSelf(c)
+	self, err := GetSelfFromSess(c)
 
 	if err != nil {
 		return err
@@ -106,4 +110,12 @@ func DefaultErrorMessage(c *fiber.Ctx, err error, code int) error {
 		})
 	}
 	return nil
+}
+
+func StringToUint32(s string) (uint, error) {
+	i, err := strconv.ParseUint(s, 10, 64)
+	if err != nil {
+		return 0, err
+	}
+	return uint(i), nil
 }

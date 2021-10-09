@@ -18,12 +18,12 @@ func DeleteTournament(c *fiber.Ctx) error {
 		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
 	}
 
-	selfID, err := utils.GetSelfID(c)
+	self, err := utils.GetSelfFromSess(c)
 	if err != nil {
 		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
 	}
 
-	if err := utils.CanEditTournament(selfID, uint(idUint)); err != nil {
+	if err := utils.CanEditTournament(self.ID, uint(idUint)); err != nil {
 		return utils.DefaultErrorMessage(c, err, fiber.StatusUnauthorized)
 	}
 

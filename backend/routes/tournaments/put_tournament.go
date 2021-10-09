@@ -10,7 +10,7 @@ import (
 )
 
 func PutTournament(c *fiber.Ctx) error {
-	selfID, err := utils.GetSelfID(c)
+	self, err := utils.GetSelfFromSess(c)
 	if err != nil {
 		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
 	}
@@ -22,7 +22,7 @@ func PutTournament(c *fiber.Ctx) error {
 		return utils.DefaultErrorMessage(c, err, fiber.StatusBadRequest)
 	}
 
-	if editErr := utils.CanEditTournament(selfID, tournament_id); editErr != nil {
+	if editErr := utils.CanEditTournament(self.ID, tournament_id); editErr != nil {
 		return utils.DefaultErrorMessage(c, err, fiber.StatusUnauthorized)
 	}
 	c.Accepts("application/json")

@@ -10,7 +10,7 @@ import (
 )
 
 func ActivateRound(c *fiber.Ctx) error {
-	selfID, err := utils.GetSelfID(c)
+	self, err := utils.GetSelfFromSess(c)
 	if err != nil {
 		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
 	}
@@ -21,7 +21,7 @@ func ActivateRound(c *fiber.Ctx) error {
 		return utils.DefaultErrorMessage(c, err, fiber.StatusBadRequest)
 	}
 
-	editErr := utils.CanEditRounds(selfID, uint(tournamentIDUint))
+	editErr := utils.CanEditRounds(self.ID, uint(tournamentIDUint))
 	if editErr != nil {
 		return utils.DefaultErrorMessage(c, err, fiber.StatusUnauthorized)
 	}
@@ -48,7 +48,7 @@ func ActivateRound(c *fiber.Ctx) error {
 }
 
 func AddRound(c *fiber.Ctx) error {
-	selfID, err := utils.GetSelfID(c)
+	self, err := utils.GetSelfFromSess(c)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success": false,
@@ -65,7 +65,7 @@ func AddRound(c *fiber.Ctx) error {
 		})
 	}
 
-	editErr := utils.CanEditRounds(selfID, uint(tournamentIDUint))
+	editErr := utils.CanEditRounds(self.ID, uint(tournamentIDUint))
 	if editErr != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"error":   editErr.Error(),

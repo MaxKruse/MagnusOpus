@@ -1,8 +1,6 @@
 package tournaments
 
 import (
-	"strconv"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/maxkruse/magnusopus/backend/globals"
 	"github.com/maxkruse/magnusopus/backend/structs"
@@ -12,17 +10,17 @@ import (
 func PostTournamentStaff(c *fiber.Ctx) error {
 	tournamentID := c.Params("id")
 
-	id, err := strconv.ParseUint(tournamentID, 10, 64)
-	if err != nil {
-		return utils.DefaultErrorMessage(c, err, fiber.StatusBadRequest)
-	}
-
-	selfID, err := utils.GetSelfID(c)
+	id, err := utils.StringToUint32(tournamentID)
 	if err != nil {
 		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
 	}
 
-	adminErr := utils.CanAddStaff(selfID, uint(id))
+	self, err := utils.GetSelfFromSess(c)
+	if err != nil {
+		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
+	}
+
+	adminErr := utils.CanAddStaff(self.ID, uint(id))
 	if adminErr != nil {
 		return utils.DefaultErrorMessage(c, err, fiber.StatusUnauthorized)
 	}

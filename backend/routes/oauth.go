@@ -76,6 +76,10 @@ func GetOAuthRipple(c *fiber.Ctx) error {
 
 	localDB.Save(&user)
 
+	sess.Set("user_id", user.ID)
+	sess.Set("username", user.Username)
+	sess.Set("ripple_id", user.RippleId)
+
 	// Save session
 	if err := sess.Save(); err != nil {
 		return err
@@ -109,7 +113,7 @@ func Logout(c *fiber.Ctx) error {
 		return err
 	}
 
-	self, err := utils.GetSelf(c)
+	self, err := utils.GetSelfFromDB(c)
 	if err != nil {
 		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
 	}

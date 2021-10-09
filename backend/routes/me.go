@@ -6,7 +6,7 @@ import (
 )
 
 func Me(c *fiber.Ctx) error {
-	self, err := utils.GetSelf(c)
+	self, err := utils.GetSelfFromDB(c)
 	if err != nil {
 		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
 	}

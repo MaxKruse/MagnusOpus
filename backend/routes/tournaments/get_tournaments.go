@@ -11,7 +11,7 @@ func GetTournaments(c *fiber.Ctx) error {
 	tournaments := []*structs.Tournament{}
 	results := tournaments
 	localDB := globals.DBConn
-	selfID, err := utils.GetSelfID(c)
+	self, err := utils.GetSelfFromSess(c)
 	if err != nil {
 		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
 	}
@@ -21,7 +21,7 @@ func GetTournaments(c *fiber.Ctx) error {
 	for _, tournament := range tournaments {
 		canView := tournament.Visible
 		for _, staff := range tournament.Staffs {
-			if staff.UserId == selfID {
+			if staff.UserId == self.ID {
 				canView = true
 			}
 		}

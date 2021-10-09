@@ -16,22 +16,20 @@ type Session struct {
 
 type User struct {
 	JsonModel
-	RippleId           int                 `json:"ripple_id ,omitempty" gorm:"unique"`
-	Username           string              `json:"username ,omitempty" gorm:"unique"`
-	Sessions           []Session           `json:"sessions ,omitempty"`
-	BeatmapSubmittions []BeatmapSubmittion `json:"beatmap_submittions ,omitempty" gorm:"many2many:user_round_submittions"`
+	RippleId int       `json:"ripple_id ,omitempty" gorm:"unique"`
+	Username string    `json:"username ,omitempty" gorm:"unique"`
+	Sessions []Session `json:"sessions ,omitempty"`
 }
 
 type Round struct {
 	JsonModel
-	TournamentId       int                 `json:"tournament_id,omitempty"`
-	Name               string              `json:"name,omitempty" gorm:"unique"`
-	Description        string              `json:"description,omitempty"`
-	Active             bool                `json:"active"`
-	DownloadPath       string              `json:"download_path,omitempty"`
-	StartTime          time.Time           `json:"start_time,omitempty"`
-	EndTime            time.Time           `json:"end_time,omitempty"`
-	BeatmapSubmittions []BeatmapSubmittion `json:"beatmap_submittions,omitempty" gorm:"many2many:user_round_submittions"`
+	TournamentId int       `json:"tournament_id,omitempty"`
+	Name         string    `json:"name,omitempty" gorm:"unique"`
+	Description  string    `json:"description,omitempty"`
+	Active       bool      `json:"active"`
+	DownloadPath string    `json:"download_path,omitempty"`
+	StartTime    time.Time `json:"start_time,omitempty"`
+	EndTime      time.Time `json:"end_time,omitempty"`
 }
 
 type Staff struct {
@@ -58,7 +56,9 @@ type Tournament struct {
 
 type BeatmapSubmittion struct {
 	JsonModel
+	Round        *Round `json:"round,omitempty"`
 	RoundId      uint   `json:"-"`
+	User         *User  `json:"user,omitempty"`
 	UserId       uint   `json:"-"`
 	Hash         string `json:"hash,omitempty"`
 	DownloadPath string `json:"download_path,omitempty"`

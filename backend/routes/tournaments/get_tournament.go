@@ -8,7 +8,7 @@ import (
 )
 
 func GetTournament(c *fiber.Ctx) error {
-	selfID, err := utils.GetSelfID(c)
+	self, err := utils.GetSelfFromSess(c)
 	if err != nil {
 		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
 	}
@@ -25,13 +25,9 @@ func GetTournament(c *fiber.Ctx) error {
 		return utils.DefaultErrorMessage(c, err, fiber.StatusNotFound)
 	}
 
-	_, err = utils.CanViewTournament(selfID, tournament.ID)
+	_, err = utils.CanViewTournament(self.ID, tournament.ID)
 	if err != nil {
 		return utils.DefaultErrorMessage(c, err, fiber.StatusForbidden)
-	}
-
-	for i := range tournament.Rounds {
-		tournament.Rounds[i].BeatmapSubmittions = nil
 	}
 
 	return c.Status(fiber.StatusOK).JSON(tournament)

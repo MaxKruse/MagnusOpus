@@ -33,13 +33,13 @@ func PostTournament(c *fiber.Ctx) error {
 	t.Rounds = nil
 	t.Staffs = nil
 
-	me, err := utils.GetSelf(c)
+	self, err := utils.GetSelfFromDB(c)
 	if err != nil {
 		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
 	}
 
 	staffMember := structs.Staff{
-		User: &me,
+		User: &self,
 		Role: "owner",
 	}
 	t.Staffs = append(t.Staffs, staffMember)
