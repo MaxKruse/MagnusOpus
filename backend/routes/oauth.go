@@ -68,7 +68,7 @@ func GetOAuthRipple(c *fiber.Ctx) error {
 	var user structs.User
 
 	localDB := globals.DBConn
-	localDB.Preload("Session").First(&user, "ripple_id = ?", rippleResp.UserId)
+	localDB.Preload("Sessions").First(&user, "ripple_id = ?", rippleResp.UserId)
 
 	user.RippleId = rippleResp.UserId
 	user.Username = rippleResp.Username
@@ -84,7 +84,7 @@ func GetOAuthRipple(c *fiber.Ctx) error {
 	if err := sess.Save(); err != nil {
 		return err
 	}
-	return c.Status(fiber.StatusOK).Redirect("/")
+	return c.Redirect("/")
 }
 
 func getOauth(c *fiber.Ctx, oauthConfig *oauth2.Config, code string) (*oauth2.Token, error) {
