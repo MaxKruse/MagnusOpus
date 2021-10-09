@@ -10,6 +10,7 @@
 GET https://localhost/api/v1/self
 Cookie: session_id={{session_id}}
 
+
 ###
 
 # Get Users
@@ -20,7 +21,7 @@ Cookie: session_id={{session_id}}
 
 # Get Tournaments
 GET https://localhost/api/v1/tournaments
-Authorization: Bearer {{session_id}}
+Cookie: session_id={{session_id}}
 
 ###
 
