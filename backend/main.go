@@ -94,7 +94,7 @@ func checkSessionCookie(c *fiber.Ctx) error {
 		return c.Next()
 	}
 
-	_, err := utils.GetSelf(c)
+	_, err := utils.GetSelfFromSess(c)
 
 	if err != nil {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{

@@ -83,6 +83,10 @@ func GetSelfFromSess(c *fiber.Ctx) (structs.User, error) {
 	user.Username = sess.Get("username").(string)
 	user.RippleId = sess.Get("ripple_id").(int)
 
+	if user.ID == 0 {
+		return structs.User{}, errors.New("user not found")
+	}
+
 	return user, nil
 }
 
