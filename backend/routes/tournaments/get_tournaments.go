@@ -11,7 +11,7 @@ func GetTournaments(c *fiber.Ctx) error {
 	tournaments := []*structs.Tournament{}
 	results := tournaments
 	localDB := globals.DBConn
-	self, err := utils.GetSelfFromSess(c)
+	self, err := utils.GetSelfFromDB(c)
 	if err != nil {
 		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
 	}

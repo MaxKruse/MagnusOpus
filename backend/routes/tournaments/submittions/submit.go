@@ -15,7 +15,7 @@ func GetBeatmaps(c *fiber.Ctx) error {
 	// - Just a user trying to get their own maps
 	// - A Judge trying to get maps for a round
 
-	self, err := utils.GetSelfFromSess(c)
+	self, err := utils.GetSelfFromDB(c)
 	if err != nil {
 		return utils.DefaultErrorMessage(c, err, fiber.StatusUnauthorized)
 	}

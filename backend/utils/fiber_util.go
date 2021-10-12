@@ -33,32 +33,8 @@ func GetRequestFilter(c *fiber.Ctx) structs.RequestFilter {
 	}
 }
 
-func CheckAuth(c *fiber.Ctx) (string, error) {
-	sess, err := globals.SessionStore.Get(c)
-	if err != nil {
-		return "", err
-	}
-
-	// get authorization header
-	auth := c.Get("Authorization")
-	token := ""
-
-	if len(auth) > 0 {
-		token = auth[7:]
-	} else {
-		token = sess.ID()
-	}
-
-	// check if token is in database
-	if !checkToken(token) {
-		return "", fiber.ErrUnauthorized
-	}
-
-	return token, nil
-}
-
 func GetSelfFromDB(c *fiber.Ctx) (structs.User, error) {
-	token, err := CheckAuth(c)
+	token, err := GetTokenFromRequest(c)
 	if err != nil {
 		return structs.User{}, err
 	}
@@ -72,26 +48,21 @@ func GetSelfFromDB(c *fiber.Ctx) (structs.User, error) {
 	return user, nil
 }
 
-func GetSelfFromSess(c *fiber.Ctx) (structs.User, error) {
-	sess, err := globals.SessionStore.Get(c)
-	if err != nil {
-		return structs.User{}, err
+func GetTokenFromRequest(c *fiber.Ctx) (string, error) {
+	token := c.Get("Authorization")
+	if token != "" {
+		return token, nil
+	}
+	token = c.Cookies("session_id", "")
+	if token != "" {
+		return token, nil
 	}
 
-	user := structs.User{}
-	user.ID = sess.Get("user_id").(uint)
-	user.Username = sess.Get("username").(string)
-	user.RippleId = sess.Get("ripple_id").(int)
-
-	if user.ID == 0 {
-		return structs.User{}, errors.New("user not found")
-	}
-
-	return user, nil
+	return "", errors.New("no token in request")
 }
 
 func IsSuperadmin(c *fiber.Ctx) error {
-	self, err := GetSelfFromSess(c)
+	self, err := GetSelfFromDB(c)
 
 	if err != nil {
 		return err

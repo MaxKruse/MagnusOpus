@@ -10,7 +10,7 @@ import (
 )
 
 func ActivateRound(c *fiber.Ctx) error {
-	self, err := utils.GetSelfFromSess(c)
+	self, err := utils.GetSelfFromDB(c)
 	if err != nil {
 		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
 	}
@@ -48,7 +48,7 @@ func ActivateRound(c *fiber.Ctx) error {
 }
 
 func AddRound(c *fiber.Ctx) error {
-	self, err := utils.GetSelfFromSess(c)
+	self, err := utils.GetSelfFromDB(c)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success": false,

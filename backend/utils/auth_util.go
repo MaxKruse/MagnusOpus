@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"github.com/gofiber/fiber/v2"
 	"github.com/maxkruse/magnusopus/backend/globals"
 	"github.com/maxkruse/magnusopus/backend/structs"
 )
@@ -11,6 +12,16 @@ func checkToken(bearer string) bool {
 		return false
 	}
 	return user.ID != 0
+}
+
+func CheckAuth(token string) (string, error) {
+
+	// check if token is in database
+	if !checkToken(token) {
+		return "", fiber.ErrUnauthorized
+	}
+
+	return token, nil
 }
 
 func GetUserFromSession(sessionToken string) (structs.User, error) {

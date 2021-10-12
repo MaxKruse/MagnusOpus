@@ -60,7 +60,7 @@ func Register(c *fiber.Ctx) error {
 }
 
 func Unregister(c *fiber.Ctx) error {
-	self, err := utils.GetSelfFromSess(c)
+	self, err := utils.GetSelfFromDB(c)
 	if err != nil {
 		return utils.DefaultErrorMessage(c, err, fiber.StatusUnauthorized)
 	}

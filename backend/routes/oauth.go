@@ -3,6 +3,7 @@ package routes
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"os"
 
 	"github.com/gofiber/fiber/v2"
@@ -112,16 +113,13 @@ func Logout(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	sess.Destroy()
 
-	// TODO: Find user of this session and delete all sessions
-	return c.Redirect("/")
-
-	self, err := utils.GetSelfFromSess(c)
+	self, err := utils.GetSelfFromDB(c)
 	if err != nil {
 		// Trying to logout when not logged in
+		log.Println(err.Error())
 		sess.Destroy()
-		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
+		return c.Redirect("/")
 	}
 
 	// Delete session for self
