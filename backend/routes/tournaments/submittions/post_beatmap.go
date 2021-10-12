@@ -6,8 +6,8 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"log"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -18,9 +18,27 @@ import (
 )
 
 func Upload(c *fiber.Ctx) error {
+	localDB := globals.DBConn
 	self, err := utils.GetSelfFromDB(c)
 	if err != nil {
 		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
+	}
+
+	// check if user is registered to tournament
+	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
+	if err != nil {
+		return utils.DefaultErrorMessage(c, err, fiber.StatusBadRequest)
+	}
+
+	tournament, err := utils.GetTournament(uint(id))
+
+	if err != nil {
+		return utils.DefaultErrorMessage(c, err, fiber.StatusNotFound)
+	}
+
+	err = tournament.IsRegistered(localDB, self.ID)
+	if err != nil {
+		return utils.DefaultErrorMessage(c, err, fiber.StatusForbidden)
 	}
 
 	file, err := c.FormFile("file")
@@ -59,10 +77,8 @@ func Upload(c *fiber.Ctx) error {
 	}
 
 	// TODO(Lithium): Check if user has too many files
-	localDB := globals.DBConn
 	var count int64
 	localDB.Model(&structs.BeatmapSubmittion{}).Where("user_id = ?", self.ID).Count(&count)
-	log.Println(count)
 
 	if count >= globals.MAX_FILES_PER_USER {
 		return utils.DefaultErrorMessage(c, errors.New("you have too many files, delete at least one"), fiber.StatusUnprocessableEntity)

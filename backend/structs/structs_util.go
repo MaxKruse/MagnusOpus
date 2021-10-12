@@ -231,3 +231,22 @@ func (t Tournament) GetBeatmapsForUser(localDB *gorm.DB, user_id uint, round_nam
 
 	return beatmaps, err
 }
+
+func (u User) OwnsMap(localDB *gorm.DB, to_delete uint) (BeatmapSubmittion, error) {
+	if u.ID == 0 {
+		return BeatmapSubmittion{}, errors.New("user_id is required")
+	}
+
+	if to_delete == 0 {
+		return BeatmapSubmittion{}, errors.New("beatmap_id is required")
+	}
+
+	var res BeatmapSubmittion
+	err := localDB.Model(&BeatmapSubmittion{}).Where("user_id = ? AND id = ?", u.ID, to_delete).First(&res).Error
+
+	if err != nil {
+		return BeatmapSubmittion{}, errors.New("submittion does not belong to user")
+	}
+
+	return res, nil
+}

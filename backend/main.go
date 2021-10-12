@@ -165,6 +165,7 @@ func main() {
 
 	tournamentsGroup.Get("/:id/rounds/:name/beatmaps", submittions.GetBeatmaps)
 	tournamentsGroup.Post("/:id/rounds/:name/beatmaps", submittions.Upload)
+	tournamentsGroup.Delete("/:id/rounds/:name/beatmaps/:to_delete", submittions.DeleteBeatmap)
 
 	// Match anything else
 	app.Use(func(c *fiber.Ctx) error {
