@@ -12,6 +12,11 @@
 
 	<div id="token">
 	</div>
+
+	<div class="file">
+		<input type="file" name="file" id="file">
+		<button type="submit" id="button" onclick="postFile()">Upload</button>
+	</div>
 </body>
 
 <script>
@@ -20,6 +25,32 @@
 
 	if (token) {
 		document.getElementById('token').innerHTML = '<p>Token: ' + token + '</p>';
+	} else {
+		document.location.href = '/oauth/ripple';
+	}
+
+	function postFile() {
+		let f = document.getElementById('file');
+
+		if (f.files.length == 0) {
+			alert('No file selected');
+			return;
+		}
+
+		let data = new FormData();
+		data.append('file', f.files[0]);
+
+		fetch("/api/v1/tournaments/1/rounds/Grandfinals/beatmaps", {
+			method: 'POST',
+			body: data,
+			headers: {
+				'Authorization': 'Bearer ' + token
+			}
+		}).then(function(response) {
+			return response.json();
+		}).then(function(json) {
+			console.log(json);
+		});
 	}
 
 	function getCookie(name) {
