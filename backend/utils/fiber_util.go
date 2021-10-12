@@ -3,6 +3,7 @@ package utils
 import (
 	"errors"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -50,9 +51,15 @@ func GetSelfFromDB(c *fiber.Ctx) (structs.User, error) {
 
 func GetTokenFromRequest(c *fiber.Ctx) (string, error) {
 	token := c.Get("Authorization")
+
+	if strings.HasPrefix(token, "Bearer ") {
+		token = strings.TrimPrefix(token, "Bearer ")
+	}
+
 	if token != "" {
 		return token, nil
 	}
+
 	token = c.Cookies("session_id", "")
 	if token != "" {
 		return token, nil

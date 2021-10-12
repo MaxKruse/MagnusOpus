@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"errors"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/maxkruse/magnusopus/backend/globals"
 	"github.com/maxkruse/magnusopus/backend/structs"
@@ -32,13 +34,13 @@ func GetUserFromSession(sessionToken string) (structs.User, error) {
 
 	err := localDB.Find(&sess, sess).Error
 	if err != nil {
-		return user, err
+		return user, errors.New("invalid session token")
 	}
 
 	// get session from db
 	err = localDB.First(&sess, sess).Error
 	if err != nil {
-		return user, err
+		return user, errors.New("invalid session token " + sessionToken)
 	}
 
 	// get user from sess
