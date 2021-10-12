@@ -26,7 +26,8 @@
 	if (token) {
 		document.getElementById('token').innerHTML = '<p>Token: ' + token + '</p>';
 	} else {
-		document.location.href = '/oauth/ripple';
+		document.getElementById('token').innerHTML = '<p><b>NOT LOGGED IN</b></p>';
+		document.getElementsByClassName('file')[0].style.display = 'none';
 	}
 
 	function postFile() {
