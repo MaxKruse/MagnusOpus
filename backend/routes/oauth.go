@@ -112,9 +112,15 @@ func Logout(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+	sess.Destroy()
 
-	self, err := utils.GetSelfFromDB(c)
+	// TODO: Find user of this session and delete all sessions
+	return c.Redirect("/")
+
+	self, err := utils.GetSelfFromSess(c)
 	if err != nil {
+		// Trying to logout when not logged in
+		sess.Destroy()
 		return utils.DefaultErrorMessage(c, err, fiber.StatusInternalServerError)
 	}
 
