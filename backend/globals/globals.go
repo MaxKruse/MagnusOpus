@@ -7,6 +7,10 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	MAX_FILES_PER_USER = 5
+)
+
 var (
 	Logger       *logrus.Logger
 	Config       structs.Config
