@@ -81,6 +81,8 @@ func AddRound(c *fiber.Ctx) error {
 		})
 	}
 
+	round.TournamentId = int(tournamentIDUint)
+
 	localDB := globals.DBConn
 	err = round.ValidRound(localDB)
 	if err != nil {

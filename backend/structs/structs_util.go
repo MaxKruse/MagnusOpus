@@ -129,7 +129,7 @@ func (t Tournament) ValidTournament(localDB *gorm.DB) error {
 
 func (t Round) RoundExist(localDB *gorm.DB) error {
 	res := Round{}
-	localDB.Where("name = ? OR tournament_id = ?", t.Name, t.TournamentId).First(&res)
+	localDB.Where("name = ? AND tournament_id = ?", t.Name, t.TournamentId).First(&res)
 
 	if res.ID != 0 {
 		return errors.New("name must be unique")
