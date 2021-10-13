@@ -102,7 +102,7 @@ func Upload(c *fiber.Ctx) error {
 		Round:        &round,
 		User:         &self,
 		Hash:         fileName,
-		DownloadPath: filePath,
+		DownloadPath: fmt.Sprintf("/download/%s.osu", fileName),
 		ToUse:        true,
 	}
 

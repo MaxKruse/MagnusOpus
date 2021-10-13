@@ -135,6 +135,9 @@ func main() {
 	// Status Page
 	app.Get("/status", monitor.New())
 
+	// Download for submittions
+	app.Get("/download/:file.osu", checkSessionCookie, submittions.DownloadMap)
+
 	// use custom middleware for the entire api
 	api.Use(checkSessionCookie)
 

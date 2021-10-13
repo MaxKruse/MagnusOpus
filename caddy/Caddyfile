@@ -21,6 +21,10 @@ localhost {
 		reverse_proxy http://backend:5000
 	}
 
+	handle /download* {
+		reverse_proxy http://backend:5000
+	}
+
 	handle {
 		reverse_proxy http://frontend:80
 	}
