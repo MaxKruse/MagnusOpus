@@ -18,3 +18,16 @@ services:
 
     depends_on: 
       - database
+
+  admin:
+    build: ./admin
+    image: citrinitas
+    restart: unless-stopped
+
+    command: npm run dev
+
+    volumes: 
+      - ./admin:/app
+
+    depends_on: 
+      - database

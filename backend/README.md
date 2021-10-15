@@ -103,9 +103,9 @@ Any specific types are in reference to golangs default types.
 
 - [X] [GET] /api/v1/{tournament}/rounds/{round_name}/beatmaps: Receive uploaded maps, or judgable maps for judges
 
-- [ ] [DELETE] /api/v1/{tournament}/rounds/{round_name}/beatmaps/{beatmap_hash}: Delete my uploaded map
+- [X] [DELETE] /api/v1/{tournament}/rounds/{round_name}/beatmaps/{beatmap_id}: Delete my uploaded map
 
-- [ ] [POST] /api/v1/{tournament}/rounds/{round_name}/beatmaps: Upload a beatmap
+- [X] [POST] /api/v1/{tournament}/rounds/{round_name}/beatmaps: Upload a beatmap
   - Required fields:
     - file: .osu file
   - This will replace the oldest available file if the limit of 5 submittions is reached
@@ -145,7 +145,6 @@ If you're not an admin, you won't be able to access these endpoints. If you beli
   - Required fields:
     One of the following:
       - ripple_id: Ripple id of the staff member
-      - bancho_id: Bancho id of the staff member
 
 - [ ] [POST] /api/v1/tournaments/{id}/round/{round_id}/map/rating: Judge a map
   - Required fields:
