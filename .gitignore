@@ -1,3 +1,6 @@
 postgres.env
 .vscode/
 caddy/data
+
+admin/node_modules
+frontend/node_modules
