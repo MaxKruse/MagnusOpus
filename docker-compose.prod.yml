@@ -17,3 +17,16 @@ services:
 
     depends_on: 
       - database
+
+  admin:
+    build: 
+      context: ./admin
+      dockerfile: Dockerfile.prod
+    image: citrinitas
+    restart: unless-stopped
+
+    volumes: 
+      - ./admin:/app
+
+    depends_on: 
+      - database

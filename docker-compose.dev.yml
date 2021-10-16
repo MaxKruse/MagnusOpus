@@ -24,10 +24,25 @@ services:
     image: citrinitas
     restart: unless-stopped
 
-    command: npm run dev
+    command: npm run serve
+
+    ports:
+      - "8080:8080"
 
     volumes: 
       - ./admin:/app
 
     depends_on: 
       - database
+
+  caddy:
+    image: caddy:alpine
+    restart: unless-stopped
+
+    volumes:
+      - ./caddy/dev:/etc/caddy
+      - ./caddy/data:/data
+
+    ports:
+      - "80:80"
+      - "443:443"

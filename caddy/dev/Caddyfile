@@ -1,0 +1,31 @@
+localhost {
+	encode zstd gzip
+
+	handle /api* {
+		reverse_proxy http://backend:5000
+	}
+
+	handle /admin* {
+		reverse_proxy http://admin:8080
+	}
+
+	handle /oauth* {
+		reverse_proxy http://backend:5000
+	}
+
+	handle /debug* {
+		reverse_proxy http://backend:5000
+	}
+
+	handle /status* {
+		reverse_proxy http://backend:5000
+	}
+
+	handle /download* {
+		reverse_proxy http://backend:5000
+	}
+
+	handle {
+		reverse_proxy http://frontend:80
+	}
+}
