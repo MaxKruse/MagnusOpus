@@ -53,7 +53,7 @@ export default defineComponent({
       })
     },
     getUsername() {
-      return this.user?.ripple_id
+      return this.user?.username
     },
   },
   async mounted() {

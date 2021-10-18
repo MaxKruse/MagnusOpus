@@ -16,9 +16,9 @@ type Session struct {
 
 type User struct {
 	JsonModel
-	RippleId int       `json:"ripple_id ,omitempty" gorm:"unique"`
-	Username string    `json:"username ,omitempty" gorm:"unique"`
-	Sessions []Session `json:"sessions ,omitempty"`
+	RippleId int       `json:"ripple_id,omitempty" gorm:"unique"`
+	Username string    `json:"username,omitempty" gorm:"unique"`
+	Sessions []Session `json:"sessions,omitempty"`
 }
 
 type Round struct {
