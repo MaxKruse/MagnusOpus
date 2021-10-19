@@ -29,6 +29,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 
+import CustomError from '@/models/CustomError'
 import Tournament from '@/models/tournament'
 import backend from '@/backend'
 
@@ -40,7 +41,11 @@ export default defineComponent({
         }
     },
     mounted() {
-        backend.GetTournaments(tournaments => {
+        backend.GetTournaments((tournaments: Tournament[], err: CustomError | null) => {
+            if (err !== null) {
+                console.error(err)
+                return
+            }
             this.tournaments = tournaments
         })
     },
