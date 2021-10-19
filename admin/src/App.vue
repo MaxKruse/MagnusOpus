@@ -1,13 +1,14 @@
 <template>
   <div class="app">
     <div v-if="isLoggedIn()">
-      <div v-if="isUserReady()">
-        <p>Welcome {{ getUsername() }}! You are logged in!</p>
+      <div v-if="isUserReady()"> 
+        <Header/>
         <router-view/>
+        <Footer/>
       </div>
     </div>
     <div v-else>
-      <LoginVue/>
+      <Login/>
     </div>
 
   </div>
@@ -21,12 +22,16 @@ import backend from './backend';
 
 import User from "./models/user"
 
-import LoginVue from './components/Login.vue';
+import Header from './components/Header.vue';
+import Footer from './components/Footer.vue';
+import Login from './components/Login.vue';
 
 export default defineComponent({
   name: "App",
   components: {
-    LoginVue
+    Header,
+    Footer,
+    Login
   },
   data() {
     return {
@@ -41,19 +46,12 @@ export default defineComponent({
   methods: {
     isLoggedIn: () => cookies.sessionToken() !== "",
     isUserReady() {
-      return this.isLoggedIn() && store.state.user?.username !== "ERROR NAME"
+      return this.isLoggedIn() && store.state.user !== null
     },
     async fetchUser() {
-      console.log("Fetching user...")
-      backend.GetSelf((user, raw) => {
-        let u = user as User
-        console.log("Got user:", u)
-        console.log("Raw response:", raw)
-        store.commit("setUser", u)
+      backend.GetSelf((user) => {
+        store.commit("setUser", user)
       })
-    },
-    getUsername() {
-      return this.user?.username
     },
   },
   async mounted() {

@@ -2,18 +2,19 @@ import axios, { AxiosRequestConfig, Method } from "axios";
 import cookies from "@/cookies";
 
 import User from "../models/user"
+import Tournament from "../models/tournament"
 
 const BASE_URL = "https://localhost";
 
 export default {
     async GetSelf(callback: (data: any, response: any) => void) {
-        return await apiRequest<any>("/api/v1/self", "GET", {}, callback);
+        return await apiRequest<User>("/api/v1/self", "GET", {}, callback);
     },
     async GetUsers(callback: (data: any, response: any) => void) {
         return await apiRequest<User[]>("/api/v1/users", "GET", {}, callback);
     },
     async GetTournaments(callback: (data: any, response: any) => void) {
-        return await apiRequest<any>("/api/v1/tournaments", "GET", {}, callback);
+        return await apiRequest<Tournament[]>("/api/v1/tournaments", "GET", {}, callback);
     },
     async GetTournament(id: number, callback: (data: any, response: any) => void) {
         return await apiRequest(`/api/v1/tournaments/${id}`, "GET", {}, callback);
