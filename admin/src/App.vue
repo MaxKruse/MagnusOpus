@@ -1,16 +1,15 @@
 <template>
-  <div class="app">
-    <div v-if="isLoggedIn()">
-      <div v-if="isUserReady()"> 
-        <Header/>
+  <div>
+    <div v-if="isLoggedIn() && isUserReady()">
+      <Header/>
+      <div class="container pt-5">
         <router-view/>
-        <Footer/>
       </div>
+      <Footer/>
     </div>
     <div v-else>
       <Login/>
     </div>
-
   </div>
 </template>
 
@@ -75,16 +74,4 @@ export default defineComponent({
   color: #2c3e50;
 }
 
-#nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
-}
 </style>

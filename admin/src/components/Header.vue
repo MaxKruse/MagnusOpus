@@ -1,6 +1,39 @@
 <template>
-  <nav class="navbar" role="navigation">
-      My Nav here
+  <nav class="navbar has-background-primary-light has-text-dark" role="navigation">
+    <div id="navbar-content" class="navbar-menu">
+      <div class="navbar-branding">
+        <a href="https://ripple.moe" class="navbar-item image is-centered">
+          <img style="max-height: 2.5rem;" src="https://ripple.moe/static/logos/logo.svg" alt="Ripple.moe">
+        </a>
+
+        <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbar">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </a>
+      </div>
+
+      <!-- Navbar Main Menu with various navigation, including back to main page -->
+      <div id="navbar" class="navbar-start">
+        <router-link to="/" class="navbar-item has-text-dark">
+          Tournaments
+        </router-link>
+        <router-link to="/users" class="navbar-item has-text-dark">
+          Users
+        </router-link>
+      </div>
+
+      <!-- Navbar End with Logout button -->
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <div class="buttons">
+            <a href="/" class="navbar-item button">Back to Homepage</a>
+            <div class="navbar-divider"></div>
+            <a href="/oauth/logout" class="button is-danger">Log Out</a>
+          </div>
+        </div>
+      </div>
+    </div>
   </nav>
 </template>
 
