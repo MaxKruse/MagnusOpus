@@ -1,9 +1,9 @@
 <template>
   <nav class="navbar has-background-primary-light has-text-dark" role="navigation">
     <div id="navbar-content" class="navbar-menu">
-      <div class="navbar-branding">
-        <a href="https://ripple.moe" class="navbar-item image is-centered">
-          <img style="max-height: 2.5rem;" src="https://ripple.moe/static/logos/logo.svg" alt="Ripple.moe">
+      <div class="navbar-brand">
+        <a href="/" class="navbar-item">
+          <b>osu!Mapping Tournaments</b>
         </a>
 
         <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbar">
