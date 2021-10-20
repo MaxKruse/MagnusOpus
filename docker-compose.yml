@@ -5,6 +5,7 @@ services:
   frontend:
     build: ./frontend
     image: nigredo
+    container_name: frontend
     restart: unless-stopped
 
     volumes: 
@@ -16,6 +17,7 @@ services:
   admin:
     build: ./admin
     image: citrinitas
+    container_name: admin
     restart: unless-stopped
 
     volumes: 
@@ -27,6 +29,7 @@ services:
   backend:
     build: ./backend
     image: albedo
+    container_name: backend
     restart: unless-stopped
 
     volumes: 
