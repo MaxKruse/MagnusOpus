@@ -2,7 +2,7 @@
   <div>
     <div v-if="isLoggedIn() && isUserReady()">
       <Header/>
-      <div class="container pt-5">
+      <div class="container pt-5 pb-5">
         <router-view/>
       </div>
       <Footer/>
