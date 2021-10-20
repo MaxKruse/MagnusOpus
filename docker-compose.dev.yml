@@ -46,3 +46,30 @@ services:
     ports:
       - "80:80"
       - "443:443"
+
+  database:
+    image: postgres:13-alpine
+    restart: unless-stopped
+
+    env_file: 
+      - postgres.env
+
+    ports: 
+      - "5432:5432"
+
+    volumes:
+      - dev-database:/var/lib/postgresql/data
+
+  session_store:
+    image: postgres:13-alpine
+    restart: unless-stopped
+
+    env_file: 
+      - postgres.env
+
+    volumes:
+      - dev-session:/var/lib/postgresql/data
+
+volumes:
+  dev-database:
+  dev-session:
