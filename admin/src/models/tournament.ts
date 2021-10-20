@@ -2,6 +2,8 @@ import User from "./user";
 import Staff from "./staff";
 import Round from "./round";
 
+import { IsoDateToLocalStr } from "@/utils/iso_to_local";
+
 class Tournament {
     id: number;
     name: string;
@@ -25,7 +27,7 @@ class Tournament {
         this.registrations = registrations;
         this.registration_start_time = registration_start_time;
         this.registration_end_time = registration_end_time;
-    }
+    }    
 }
 
 export default Tournament;

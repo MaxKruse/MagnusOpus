@@ -19,7 +19,7 @@ export default {
         return await apiRequest<Tournament[]>("/api/v1/tournaments", "GET", {}, callback);
     },
     async GetTournament(id: number, callback: (data: any, error: CustomError | null) => void) {
-        return await apiRequest(`/api/v1/tournaments/${id}`, "GET", {}, callback);
+        return await apiRequest<Tournament>(`/api/v1/tournaments/${id}`, "GET", {}, callback);
     },
     async PostTournament(data: any, callback: (data: any, error: CustomError | null) => void) {
         return await apiRequest("/api/v1/tournaments", "POST", data, callback);

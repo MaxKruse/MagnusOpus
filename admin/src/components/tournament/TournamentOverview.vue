@@ -15,10 +15,10 @@
                 <tr v-for="tournament in tournaments" :key="tournament.id">
                     <td>{{ tournament.name }}</td>
                     <td>{{ tournament.description }}</td>
-                    <td>{{ tournament.start_time }}</td>
-                    <td>{{ tournament.end_time }}</td>
-                    <td>{{ tournament.registration_start_time }}</td>
-                    <td>{{ tournament.registration_end_time }}</td>
+                    <td>{{ utils.IsoDateToLocalStr(tournament.start_time)}}</td>
+                    <td>{{ utils.IsoDateToLocalStr(tournament.end_time) }}</td>
+                    <td>{{ utils.IsoDateToLocalStr(tournament.registration_start_time) }}</td>
+                    <td>{{ utils.IsoDateToLocalStr(tournament.registration_end_time) }}</td>
                 </tr>
             </tbody>
         </table>
@@ -33,10 +33,15 @@ import CustomError from '@/models/CustomError'
 import Tournament from '@/models/tournament'
 import backend from '@/backend'
 
+import { IsoDateToLocalStr } from '@/utils/iso_to_local'
+
 export default defineComponent({
     name: 'TournamentOverview',
     data() {
         return {
+            utils: {
+                IsoDateToLocalStr
+            },
             tournaments: [] as Tournament[]
         }
     },
