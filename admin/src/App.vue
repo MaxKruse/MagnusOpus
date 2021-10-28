@@ -74,4 +74,21 @@ export default defineComponent({
   color: #2c3e50;
 }
 
+.router-link-exact-active{
+  color: $primary;
+  font-weight: bold;
+}
+
+.is-success {
+  background-color: rgba($success, 0.5);
+}
+
+.is-warning {
+  background-color: rgba($warning, 0.5);
+}
+
+.is-danger {
+  background-color: rgba($danger, 0.5);
+}
+
 </style>

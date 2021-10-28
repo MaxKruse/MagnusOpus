@@ -6,7 +6,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
     name: "Tournament Overview",
-    component: TournamentOverview,
+    component: TournamentOverview
   }
 ];
 
