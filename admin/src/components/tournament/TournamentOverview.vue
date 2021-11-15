@@ -73,4 +73,10 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+// center .tournament div
+.tournament {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 </style>
