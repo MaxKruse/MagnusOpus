@@ -96,11 +96,6 @@ func (t Tournament) ValidTournament(localDB *gorm.DB) error {
 		return errors.New("registration_end_time is required (ISO 8601) (RFC 3339)")
 	}
 
-	// Check if the time is in the future
-	if t.StartTime.Before(time.Now()) {
-		return errors.New("start_time must be in the future")
-	}
-
 	if t.EndTime.Before(time.Now()) {
 		return errors.New("end_time must be in the future")
 	}
@@ -120,7 +115,7 @@ func (t Tournament) ValidTournament(localDB *gorm.DB) error {
 	}
 
 	// check if registration ends before tournament starts
-	if t.RegistrationEndTime.After(t.StartTime) {
+	if t.RegistrationEndTime.After(t.EndTime) {
 		return errors.New("registration_end_time must be before end_time")
 	}
 
