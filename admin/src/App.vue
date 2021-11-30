@@ -1,9 +1,11 @@
 <template>
   <div>
-    <div v-if="isLoggedIn() && isUserReady()">
+    <div v-if="isLoggedIn()">
       <Header/>
       <div class="container pt-5 pb-5">
         <router-view/>
+        <loading :active="!(isLoggedIn() && isUserReady())" 
+          :is-full-page="true"/>
       </div>
       <Footer/>
     </div>
@@ -15,8 +17,8 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import store from '@/store'
-import cookies from '@/cookies'
+import store from './store'
+import cookies from './cookies'
 import backend from './backend';
 
 import User from "./models/user"
@@ -25,12 +27,16 @@ import Header from './components/Header.vue';
 import Footer from './components/Footer.vue';
 import Login from './components/Login.vue';
 
+import Loading from 'vue-loading-overlay';
+import 'vue-loading-overlay/dist/vue-loading.css';
+
 export default defineComponent({
   name: "App",
   components: {
     Header,
     Footer,
-    Login
+    Login,
+    Loading
   },
   data() {
     return {
