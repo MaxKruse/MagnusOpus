@@ -54,7 +54,7 @@ The follow paths will need to be exposed:
     /admin  : admin
     /api/v1 : backend api
     
-### To-Do
+**To-Do:**
 
 Both the frontend and admin pages will be served in their respective docker containers using nginx, exposing their ports. Caddy (or whatever reverse proxy you choose) will then be able to route/redirect accordingly. 
 
