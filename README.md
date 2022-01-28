@@ -30,7 +30,7 @@ It will also include an OAuth2 login system to allow users to login with their [
 
 The backend of this service includes all nesseccary backend components to allow moderators to create tournaments, manage tournaments, and manage rounds.
 
-It will also provide for any needed backend components to allow users to upload and manage maps, as well as saving judgements in a database.
+It will also provide for any needed backend components to allow users to upload and manage maps, as well as saving judgements in a database. To see a more detailed view, read [the readme](backend/README.md)
 
 The database will be multi-client compliant, meaning users will only ever see what they are supposed to see. The same goes for judges. Only staff gets clear views.
 
