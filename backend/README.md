@@ -83,32 +83,32 @@ Any specific types are in reference to golangs default types.
 
 ### User Spec
 
-- [x] [GET] /oauth: Redirect user to oauth of the server, e.g. https://localhost/oauth/ripple redirects to ripple's oauth page
+- [x] [GET] /oauth: Redirect user to oauth of the server, e.g. https://localhost/oauth/ripple redirects to ripple's oauth page.
   - Valid server: ripple
 
-- [x] [GET] /oauth/{server}/logout: Logout user for the server
+- [x] [GET] /oauth/{server}/logout: Logout user for the server.
   - Valid server: ripple
 
 - [x] [GET] /api/v1/tournaments: Get all tournaments.
 
 - [x] [GET] /api/v1/tournament/{id}: Get tournament by id.
 
-- [x] [GET] /api/v1/me: Get personal data, including all tournament data, beatmaps and tokens. Literally everything
+- [x] [GET] /api/v1/me: Get personal data, including all tournament data, beatmaps and tokens. Literally everything.
 
-- [x] [GET] /api/v1/self: Get personal data, including all tournament data, beatmaps and tokens. Literally everything
+- [x] [GET] /api/v1/self: Get personal data, including all tournament data, beatmaps and tokens. Literally everything.
 
-- [X] [POST] /api/v1/{tournament}/registration: Signup for a tournament
+- [X] [POST] /api/v1/{tournament}/registration: Signup for a tournament.
 
-- [X] [DELETE] /api/v1/{tournament}/registration: Unsignup for a tournament
+- [X] [DELETE] /api/v1/{tournament}/registration: Unsignup for a tournament.
 
-- [X] [GET] /api/v1/{tournament}/rounds/{round_name}/beatmaps: Receive uploaded maps, or judgable maps for judges
+- [X] [GET] /api/v1/{tournament}/rounds/{round_name}/beatmaps: Receive uploaded maps, or judgable maps for judges.
 
-- [X] [DELETE] /api/v1/{tournament}/rounds/{round_name}/beatmaps/{beatmap_id}: Delete my uploaded map
+- [X] [DELETE] /api/v1/{tournament}/rounds/{round_name}/beatmaps/{beatmap_id}: Delete my uploaded map.
 
-- [X] [POST] /api/v1/{tournament}/rounds/{round_name}/beatmaps: Upload a beatmap
+- [X] [POST] /api/v1/{tournament}/rounds/{round_name}/beatmaps: Upload a beatmap.
   - Required fields:
     - file: .osu file
-  - This will replace the oldest available file if the limit of 5 submittions is reached
+  - This will replace the oldest available file if the limit of 5 submissions is reached
 
 ### Admin Spec
 

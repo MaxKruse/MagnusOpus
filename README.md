@@ -16,19 +16,19 @@ The Magnus opus is a full-stack service aimed at providing the interface and bac
 - [ ] **Tournament management**, allowing moderators to moderate and edit tournaments
 - [ ] **Tournament rounds**, allowing moderators to create rounds in tournaments
 - [ ] **Map Uploads**, allowing users to upload and view their maps
-- [ ] **Map management**, allowing moderators to see submittions
-- [ ] **Map judging**, allowing judges to see and rate submittions anonymously
+- [ ] **Map management**, allowing moderators to see submissions
+- [ ] **Map judging**, allowing judges to see and rate submissions anonymously
 - [ ] **Staff management**, allowing admins to manage staff members
 
 ## Nigredo
 
-The frontend of this service includes all nesseccary frontend components to allow users to register, create tournaments, and manage tournaments.
+The frontend of this service includes all necessary frontend components to allow users to register, create tournaments, and manage tournaments.
 
 It will also include an OAuth2 login system to allow users to login with their [ripple](https://ripple.moe) accounts.
 
 ## Albedo
 
-The backend of this service includes all nesseccary backend components to allow moderators to create tournaments, manage tournaments, and manage rounds.
+The backend of this service includes all necessary backend components to allow moderators to create tournaments, manage tournaments, and manage rounds.
 
 It will also provide for any needed backend components to allow users to upload and manage maps, as well as saving judgements in a database. To see a more detailed view, read [the readme](backend/README.md)
 
