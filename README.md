@@ -48,7 +48,7 @@ The following ports will be exposed by docker-compose:
 
     5000: The backend
 
-The follow paths will be exposed:
+The follow paths will need to be exposed:
 
     / (Root): frontend
     /admin  : admin
