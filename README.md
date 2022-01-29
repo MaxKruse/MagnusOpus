@@ -1,6 +1,6 @@
-# Magnus opus
+# Magnum opus
 
-[The Magnus opus](https://en.wikipedia.org/wiki/Magnum_opus_(alchemy)) is a collection of alchemical recipes. In this context, it is the codename for the project.
+[The Magnum opus](https://en.wikipedia.org/wiki/Magnum_opus_(alchemy)) is a collection of alchemical recipes. In this context, it is the codename for the project.
 
 It's stages are:
 
