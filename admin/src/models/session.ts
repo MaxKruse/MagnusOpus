@@ -1,6 +1,6 @@
 class Session {
-    id: number = 0;
-    SessionToken: string = "";
+  id = 0;
+  SessionToken = "";
 }
 
 export default Session;

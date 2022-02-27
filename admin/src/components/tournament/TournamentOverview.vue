@@ -1,6 +1,6 @@
 <template>
   <div class="tournament">
-    <table class="table" v-if="tournaments.length > 0">
+    <table v-if="tournaments.length > 0" class="table">
       <thead>
         <tr>
           <th>Name</th>
@@ -12,64 +12,51 @@
         </tr>
       </thead>
       <tbody>
-        <tr class="tr" v-for="tournament in tournaments" :key="tournament.id" :class="getTimeClass(tournament)">
+        <tr
+          v-for="tournament in tournaments"
+          :key="tournament.id"
+          class="tr"
+          :class="getTimeClass(tournament)"
+        >
           <td>{{ tournament.name }}</td>
           <td>{{ tournament.description }}</td>
-          <td>{{ utils.IsoDateToLocalStr(tournament.start_time) }}</td>
-          <td>{{ utils.IsoDateToLocalStr(tournament.end_time) }}</td>
-          <td>{{ utils.IsoDateToLocalStr(tournament.registration_start_time) }}</td>
-          <td>{{ utils.IsoDateToLocalStr(tournament.registration_end_time) }}</td>
+          <td>{{ IsoDateToLocalStr(tournament.start_time) }}</td>
+          <td>{{ IsoDateToLocalStr(tournament.end_time) }}</td>
+          <td>{{ IsoDateToLocalStr(tournament.registration_start_time) }}</td>
+          <td>{{ IsoDateToLocalStr(tournament.registration_end_time) }}</td>
         </tr>
       </tbody>
     </table>
-    <span class="tag is-warning is-large" v-else>No tournaments found.</span>
+    <span v-else class="tag is-warning is-large">No tournaments found.</span>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
+import { onMounted, ref } from "vue";
 
-import CustomError from '@/models/CustomError'
-import Tournament from '@/models/tournament'
-import backend from '@/backend'
+import Tournament from "../../models/tournament";
+import backend from "../../backend";
 
-import { IsoDateToLocalStr } from '@/utils/iso_to_local'
+import { IsoDateToLocalStr } from "../../utils/iso_to_local";
 
-export default defineComponent({
-  name: 'TournamentOverview',
-  data() {
-    return {
-      utils: {
-        IsoDateToLocalStr
-      },
-      tournaments: [] as Tournament[]
-    }
-  },
-  mounted() {
-    backend.GetTournaments((tournaments: Tournament[], err: CustomError | null) => {
-      if (err !== null) {
-        console.error(err)
-        return
-      }
-      this.tournaments = tournaments
-    })
-  },
-  methods: {
-    getTimeClass(tournament: Tournament) {
-      const now = new Date()
-      const start = new Date(tournament.start_time)
-      const end = new Date(tournament.end_time)
-      if (now < start) {
-        return 'is-warning'
-      } else if (now < end) {
-        return 'is-success'
-      } else {
-        return 'is-danger'
-      }
-    }
-  }
+const tournaments = ref<Tournament[]>([]);
+
+onMounted(async () => {
+  tournaments.value = await backend.GetTournaments();
 })
 
+function getTimeClass(tournament: Tournament) {
+  const now = new Date();
+  const start = new Date(tournament.start_time);
+  const end = new Date(tournament.end_time);
+  if (now < start) {
+    return "is-warning";
+  } else if (now < end) {
+    return "is-success";
+  } else {
+    return "is-danger";
+  }
+}
 </script>
 
 <style lang="scss" scoped>

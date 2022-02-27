@@ -5,29 +5,40 @@ import Round from "./round";
 import { IsoDateToLocalStr } from "@/utils/iso_to_local";
 
 class Tournament {
-    id: number;
-    name: string;
-    description: string;
-    start_time: Date;
-    end_time: Date;
-    rounds: Round[];
-    staffs: Staff[];
-    registrations: User[];
-    registration_start_time: Date;
-    registration_end_time: Date;
+  id: number;
+  name: string;
+  description: string;
+  start_time: Date;
+  end_time: Date;
+  rounds: Round[];
+  staffs: Staff[];
+  registrations: User[];
+  registration_start_time: Date;
+  registration_end_time: Date;
 
-    constructor(id: number, name: string, description: string, start_time: Date, end_time: Date, rounds: Round[], staffs: Staff[], registrations: User[], registration_start_time: Date, registration_end_time: Date) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.start_time = start_time;
-        this.end_time = end_time;
-        this.rounds = rounds;
-        this.staffs = staffs;
-        this.registrations = registrations;
-        this.registration_start_time = registration_start_time;
-        this.registration_end_time = registration_end_time;
-    }    
+  constructor(
+    id: number,
+    name: string,
+    description: string,
+    start_time: Date,
+    end_time: Date,
+    rounds: Round[],
+    staffs: Staff[],
+    registrations: User[],
+    registration_start_time: Date,
+    registration_end_time: Date
+  ) {
+    this.id = id;
+    this.name = name;
+    this.description = description;
+    this.start_time = start_time;
+    this.end_time = end_time;
+    this.rounds = rounds;
+    this.staffs = staffs;
+    this.registrations = registrations;
+    this.registration_start_time = registration_start_time;
+    this.registration_end_time = registration_end_time;
+  }
 }
 
 export default Tournament;

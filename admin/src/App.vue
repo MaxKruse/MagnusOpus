@@ -1,72 +1,52 @@
 <template>
   <div>
     <div v-if="isLoggedIn()">
-      <Header/>
+      <Header />
       <div class="container pt-5 pb-5">
-        <router-view/>
-        <loading :active="!(isLoggedIn() && isUserReady())" 
-          :is-full-page="true"/>
+        <router-view />
+        <loading
+          :active="!(isLoggedIn() && isUserReady())"
+          :is-full-page="true"
+        />
       </div>
-      <Footer/>
+      <Footer />
     </div>
     <div v-else>
-      <Login/>
+      <Login />
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
-import store from './store'
-import cookies from './cookies'
-import backend from './backend';
+<script lang="ts" setup>
+import { useUserStore } from "./store/UserStore";
 
-import User from "./models/user"
+import cookies from "./cookies";
+import backend from "./backend";
 
-import Header from './components/Header.vue';
-import Footer from './components/Footer.vue';
-import Login from './components/Login.vue';
+import Header from "./components/Header.vue";
+import Footer from "./components/Footer.vue";
+import Login from "./components/Login.vue";
 
-import Loading from 'vue-loading-overlay';
-import 'vue-loading-overlay/dist/vue-loading.css';
+import User from "./models/user";
 
-export default defineComponent({
-  name: "App",
-  components: {
-    Header,
-    Footer,
-    Login,
-    Loading
-  },
-  data() {
-    return {
-      store: store
-    }
-  },
-  computed: {
-    user(): User {
-      return store.state.user
-    }
-  },
-  methods: {
-    isLoggedIn: () => cookies.sessionToken() !== "",
-    isUserReady() {
-      return this.isLoggedIn() && store.state.user !== null
-    },
-    async fetchUser() {
-      backend.GetSelf((user) => {
-        store.commit("setUser", user)
-      })
-    },
-  },
-  async mounted() {
-    if (this.isLoggedIn()) {
-      await this.fetchUser();
-    }
-  }
-})
+import "vue-loading-overlay/dist/vue-loading.css";
+
+import { onMounted, ref } from "vue";
+
+const userStore = useUserStore();
+
+function isLoggedIn() {
+  return cookies.sessionToken() !== "";
+}
+
+function isUserReady() {
+  return isLoggedIn() && userStore.user !== null;
+}
+
+onMounted(async () => {
+  userStore.setUser(await backend.GetSelf())
+});
 </script>
-
 
 <style lang="scss">
 @charset "utf-8";
@@ -80,11 +60,6 @@ export default defineComponent({
   color: #2c3e50;
 }
 
-.router-link-exact-active{
-  color: $primary;
-  font-weight: bold;
-}
-
 .is-success {
   background-color: rgba($success, 0.5);
 }
@@ -96,5 +71,4 @@ export default defineComponent({
 .is-danger {
   background-color: rgba($danger, 0.5);
 }
-
 </style>

@@ -1,23 +1,18 @@
 <template>
   <div class="hero is-info is-fullheight">
-      <div class="hero-body">
-          <div class="container has-text-centered">
-              <a href="https://localhost/oauth/ripple" class="button is-large is-primary">
-                Log in with Ripple
-              </a>
-          </div>
+    <div class="hero-body">
+      <div class="container has-text-centered">
+        <a
+          href="https://localhost/oauth/ripple"
+          class="button is-large is-primary"
+        >
+          Log in with Ripple
+        </a>
       </div>
+    </div>
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup></script>
 
-import { defineComponent } from 'vue'
-export default defineComponent({
-
-})
-</script>
-
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>
